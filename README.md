@@ -1,2 +1,3 @@
-# coronapoker
-Texas Hold'em AI by Bill and Kai, created during the great COVID-19 epidemic.
+# coronapoker by Bill and Kai
+Texas Hold'em AI created during the great COVID-19 epidemic.
+Contributor: JWang925, Derek28
