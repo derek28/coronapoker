@@ -1,20 +1,21 @@
 CFLAGS = -O1 -std=c++11
 CC = g++
+DEPS = card.h deck.h pokerhand.h
+OBJ = main.o pokerhand.o card.o deck.o
 
-all: poker
+poker: $(OBJ) 
+	$(CC) $(CFLAGS) -o poker $(OBJ) 
 
-poker: 
-	$(CC) $(CFLAGS) -o poker main.o
-
-pokerhand.o: pokerhand.cpp
+pokerhand.o: 
 	$(CC) $(CFLAGS) -c pokerhand.cpp
 
-card.o: card.cpp
+card.o: 
 	$(CC) $(CFLAGS) -c card.cpp
 
-deck.o: deck.cpp
-	$(CC) $(CFLAGS) -c deck.cpp	
+deck.o: 
+	$(CC) $(CFLAGS) -c deck.cpp
 
+.PHONY: clean
 clean:                 
 	rm -f *.o
 
