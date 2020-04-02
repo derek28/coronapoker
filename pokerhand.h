@@ -1,3 +1,10 @@
+/**************************************************** 
+ * Filename: pokerhand.h
+ * Author: Bill
+ * Last modified: 2020/04/01
+ * Description: Blabla
+ ***************************************************/
+
 #pragma once
 #include <vector>
 #include <algorithm>

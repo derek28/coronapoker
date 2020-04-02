@@ -6,14 +6,8 @@ OBJ = main.o pokerhand.o card.o deck.o
 poker: $(OBJ) 
 	$(CC) $(CFLAGS) -o poker $(OBJ) 
 
-pokerhand.o: 
-	$(CC) $(CFLAGS) -c pokerhand.cpp
-
-card.o: 
-	$(CC) $(CFLAGS) -c card.cpp
-
-deck.o: 
-	$(CC) $(CFLAGS) -c deck.cpp
+%.o: %.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean
 clean:                 
