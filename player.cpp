@@ -10,6 +10,8 @@
 
 #include "player.h"
 
+#define DEBUG
+
 using namespace std;
 
 Player::Player() {
@@ -34,6 +36,11 @@ Player::Player(int player_type, string name) {
 
 Player::~Player() {}
 
+
+int Player::Action(){
+    
+    return 1;
+}
 int Player::Bet(int bet_amount) {
 	if (status_ != STATUS_IN_GAME) {
 		cerr << "Cannot bet if not in game!" << endl;	
@@ -80,6 +87,12 @@ void Player::SetStatus(int status) {
 	status_ = status;
 }
 
+void Player::SetType(int type) {
+    if (0){
+        //maybe should look in a dictionary for available types
+    }
+    player_type_ = type;
+}
 
 int Player::AddToStack(int add_amount) {
 	if (add_amount < 0) {
