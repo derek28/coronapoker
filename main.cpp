@@ -13,9 +13,16 @@ int main()
 	// Initialize Game
 	// Create 2 players, one AI, the other AI/player	
 	
-	while (1) {  // while no one is broke
+	//while (1) {  // while no one is broke
 		// shuffle deck
-		
+		Deck deck;
+		deck.shuffle();
+		deck.print();
+	
+		for (int i = 0; i < 54; i++) {
+			Card card = deck.deal();
+			cout <<	card << " ";
+		}	
 		// deal cards to players
 		// initial small/big blinds
 		// player action
@@ -28,6 +35,6 @@ int main()
 		// showdown
 		// chip counting
 
-	}	
+//	}	
 	return 0;
 }
