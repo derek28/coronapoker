@@ -1,8 +1,13 @@
+/* 
+ * pokerhand.cpp
+ */
 
 #include "pokerhand.h"
 #include <vector>
 #include "card.h"
 #include <algorithm>
+
+using namespace std;
 
 PokerHand::PokerHand (){ //default constructor
 	hand.reserve(7);
@@ -25,6 +30,7 @@ PokerHand::PokerHand (const int ncard){ //constructor by defining number of rand
 		++icard;
 		if(j==1) {handmap[i][j+13]=1;handmap[0][j+13]++;}
 	}
+	this->UpdateStrength();
 }
 
 PokerHand::PokerHand (const char* pokerhand) { //constructor from a string input such as "KH KD TC 3C"
@@ -67,10 +73,25 @@ PokerHand::PokerHand (const char* pokerhand) { //constructor from a string input
 		i=0;
 		j=0;
    	}
+	this->UpdateStrength();
 };
 
 
-PokerHand::~PokerHand(){}
+PokerHand::~PokerHand() { 
+
+}
+
+bool operator == (const PokerHand &ph1, const PokerHand &ph2) {
+	return (ph1.strength == ph2.strength);
+}
+
+bool operator < (const PokerHand &ph1, const PokerHand &ph2) {
+	return (ph1.strength < ph2.strength);
+}
+
+bool operator > (const PokerHand &ph1, const PokerHand &ph2) {
+	return (ph1.strength > ph2.strength);
+}
 
 void PokerHand::add( const Card & card){
 	hand.push_back(card);
@@ -83,6 +104,8 @@ void PokerHand::add( const Card & card){
 	handmap[j][i]++;
 	handmap[0][i]++;
 	handmap[j][0]++;
+
+	this->UpdateStrength();
 }
 
 void PokerHand::printarray(){
@@ -98,9 +121,8 @@ void PokerHand::print(){
 	std::cout<<std::endl;
 }
 
-
-std::vector<int> PokerHand::GetStrength(){
-	do{
+void PokerHand::UpdateStrength() {
+	do {
 		if( this->_is_SF()) { continue;}
 		if( this->_is_quad()) {continue;}
 		if( this->_is_FH()) {continue;}
@@ -110,7 +132,10 @@ std::vector<int> PokerHand::GetStrength(){
 		if( this->_is_two_pairs()){continue;}
 		if( this->_is_one_pair()) {continue;} 
 		this->_high_cards();
-	}while (0);
+	} while (0);
+}
+
+std::vector<int> PokerHand::GetStrength(){
 	return strength;
 }
 
