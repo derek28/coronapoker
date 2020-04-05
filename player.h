@@ -39,13 +39,14 @@ public:
   	int GetStatus();
 	void SetStatus(int status);
   
-  	//void ResetHoleCards(); //throw away hole card
+  	void ResetHoleCards(); //throw away hole card
 	void SetHoleCards(Card *cards);	
   
 private:
   	Card hole_cards[2];
-  	int stack_size_;
+/*consider remove*/  	int stack_size_;   //Reason: read from game_state instead
   	int player_type_; 	//various types of AI, or human(0)
-  	int status_;		// See #define at top 
+  	int status_;		// See #define at top //read from game_state instead 
   	string name_; 		//player name, may need to be unique 
+    int player_id_; //need this variable to know who i am in the game state
 };

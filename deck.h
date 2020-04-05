@@ -1,3 +1,5 @@
+#pragma once
+
 #include<iostream>
 #include "card.h"
 #include<vector>
