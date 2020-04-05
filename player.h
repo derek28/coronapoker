@@ -6,14 +6,18 @@
 
 #pragma once
 
+#define DEBUG
+
 #include <vector>
 #include <string>
 #include "card.h"
+#include "game_state.h"
 
 #define STATUS_NO_PLAYER	0
 #define STATUS_IN_GAME		1
 #define STATUS_FOLDED		2
 #define STATUS_SIT_OUT		3
+#define STATUS_ALL_IN       4
 
 #define PLAYER_HUMAN		0
 #define PLAYER_BOT			1
@@ -26,7 +30,7 @@ public:
 	Player(int player_type, string name);//default name, stack_size
   	~Player();
 
-	int Action();
+	Action Act(GameState);
 	
   	int Bet(int bet_amount);
   	int Call(int call_amount);

@@ -7,7 +7,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include "player.h"
 
 #define DEBUG
@@ -37,10 +36,14 @@ Player::Player(int player_type, string name) {
 Player::~Player() {}
 
 
-int Player::Action(){
-    
-    return 1;
+Action Player::Act(GameState){
+    Action action_to_return;
+	action_to_return.action = 0 ; //0 =  fold 
+	action_to_return.amount = 0 ;
+
+	return action_to_return;
 }
+
 int Player::Bet(int bet_amount) {
 	if (status_ != STATUS_IN_GAME) {
 		cerr << "Cannot bet if not in game!" << endl;	
