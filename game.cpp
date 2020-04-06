@@ -3,7 +3,7 @@
 
 
 #include "game.h"
-#include <algorithm> //std::copy for array copying
+#include <algorithm> //std::copy for array copying, std::max_element
 
 using namespace std;
 
@@ -24,6 +24,7 @@ int Game::AddPlayer(int seat, int stack_size, int type) {
 	players[seat].SetType(type);
     players[seat].SetStatus(1); //#define STATUS_IN_GAME		1
 	players[seat].AddToStack(stack_size);
+    players[seat].SetID(seat);
 	
     //Update game_state_
     game_state_.num_player++;
@@ -76,6 +77,7 @@ void Game::PostBlinds() {
     game_state_.pot_size = 0;
     game_state_.next_player_to_act = FindNextPlayer(bb_pos_);
     game_state_.aggressor = FindNextPlayer(bb_pos_); //last to act is BB
+    game_state_.raise_amount = game_state_.bb_amount;
     game_state_.num_player_in_hand = game_state_.num_player;
 }
 
@@ -221,6 +223,7 @@ void Game::CollectMoneyFromBetRing() {
         game_state_.pot_size += game_state_.bet_ring[i];
         game_state_.bet_ring[i] = 0;
     }
+    game_state_.raise_amount = 0;
 }
 
 
@@ -256,13 +259,31 @@ void Game::SetupNextStreet() {
 
 
 void Game::UpdateGameState(ActionWithID ac) {
+
+    //Correct ac if it is invalid
+    int biggest_bet_amount = *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
+    if (ac.player_action.action == 1 ) {
+        if (ac.player_action.amount !=  biggest_bet_amount) {
+            std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
+                      << "Should be: " <<  biggest_bet_amount << std::endl;
+            ac.player_action.amount = 0;
+            ac.player_action.action = 0;
+        }
+    }
+    else if ( ac.player_action.action == 2) {
+        if (ac.player_action.amount < biggest_bet_amount + game_state_.raise_amount)
+            std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
+                      << "Should be at least: " <<  biggest_bet_amount + game_state_.raise_amount << std::endl;            
+    }
+
     switch (ac.player_action.action ) {
     case 0:
         game_state_.num_player_in_hand--;
         game_state_.player_status[ac.ID] = 0;
         break;
     case 1:
-        std::cerr << "[ERROR] Process 'Call action' is not supported yet" << std::endl; 
+        game_state_.stack_size[ac.ID] -= ac.player_action.amount;
+        game_state_.bet_ring[ac.ID] += ac.player_action.amount;
         break;
     case 2:
         std::cerr << "[ERROR] Process 'Raise action' is not supported yet" << std::endl;

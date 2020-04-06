@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "player.h"
+#include <algorithm>
 
 #define DEBUG
 
@@ -36,10 +37,17 @@ Player::Player(int player_type, string name) {
 Player::~Player() {}
 
 
-Action Player::Act(GameState){
+Action Player::Act(GameState game_state){
     Action action_to_return;
-	action_to_return.action = 0 ; //0 =  fold 
-	action_to_return.amount = 0 ;
+
+//  Always fold
+//	action_to_return.action = 0 ; //0 = fold 
+//	action_to_return.amount = 0 ;
+
+//  Always call
+	action_to_return.action = 1 ; //1 = call
+	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
+									- game_state.bet_ring[player_id_]  ;
 
 	return action_to_return;
 }
@@ -112,4 +120,8 @@ void Player::ResetHoleCards() {
 
 void Player::SetHoleCards(Card *cards) {
 	///
+}
+
+void Player::SetID(int id) {
+	player_id_ = id;
 }

@@ -42,7 +42,9 @@ public:
 
   	int GetStatus();
 	void SetStatus(int status);
-  
+	
+	void SetID(int id);
+	
   	void ResetHoleCards(); //throw away hole card
 	void SetHoleCards(Card *cards);	
   

@@ -58,7 +58,7 @@ switch(c.GetRank()) {
        		case 12 : outstream << "Q"; break;
 			case 13 : outstream << "K"; break;
 			case 14 : outstream << "A"; break;
-       		default : std::cout << "Rank out of bound!" << std::endl;
+       		default : std::cerr << "[ERROR] Rank out of bound! Rank is " << c.GetRank() << std::endl;
 }
 	
 switch(c.GetSuit()) {
@@ -66,7 +66,7 @@ switch(c.GetSuit()) {
        		case 2 : outstream << "h"; break;
        		case 3 : outstream << "c"; break;
        		case 4 : outstream << "d"; break;
-       		default : std::cout << "Suit out of bound!" << std::endl;
+       		default : std::cerr << "[ERROR] Suit out of bound! Suit is: " << c.GetSuit() << std::endl;
 }
 
 

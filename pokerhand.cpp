@@ -43,8 +43,8 @@ PokerHand::PokerHand (const char* pokerhand) { //constructor from a string input
 	       		case 'J' : i=11; break;
 	       		case 'T' : i=10; break;
 	      		case '9' : i=9 ; break;
-		   	case '8' : i=8 ; break;
-			case '7' : i=7 ; break;
+		   	    case '8' : i=8 ; break;
+			    case '7' : i=7 ; break;
 		       	case '6' : i=6 ; break;
 		       	case '5' : i=5 ; break;
 	     	  	case '4' : i=4 ; break;

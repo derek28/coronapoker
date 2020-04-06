@@ -20,6 +20,8 @@ void testPokerhandComparison() {
 	std::cout << "*****Test: Pokerhand Strength Comparison*****" << std::endl;
 	PokerHand ph1("2H 2D 4H 5C AD 7C 8H");
 	PokerHand ph2("2S 2C 4H 6H AD 7H 8H");
+	ph1.print();
+	ph2.print();
 
 	std::cout << "ph1 < ph2 : " << ( ph1 < ph2 ) << std::endl;
 	std::cout << "ph1 = ph2 : " << ( ph1 == ph2 ) << std::endl;
@@ -27,7 +29,7 @@ void testPokerhandComparison() {
 }
 
 void test4(){ //test of deck generation, shuffle and deal.
-	cout << "*****Test4: Deck generation and shuffling*****" <<endl;
+	std::cout << "*****Test4: Deck generation and shuffling*****" <<std::endl;
 	Deck deck;
 	std::cout << "deck before shuffling:" << std::endl; 
 	deck.print();
@@ -40,7 +42,7 @@ void test4(){ //test of deck generation, shuffle and deal.
 }
 
 void test5(){ //generate and print PokerHand
-	cout << "*****Test5: PokerHand generation and display*****" <<endl;
+	std::cout << "*****Test5: PokerHand generation and display*****" <<std::endl;
 	PokerHand hand1("2H 3H 4H 5H 6D 7H 8H");
 	std::cout << "Hand: \"2H 3H 4H 5H 6D 7H 8H\"" <<std::endl;
 	hand1.printarray();
@@ -50,7 +52,7 @@ void test5(){ //generate and print PokerHand
 }
 
 void test6(){ //poker hand type evaluation benchmark
-	cout << "*****Test6: Hand Frequency calculator and benchmark*****" <<endl;
+	std::cout << "*****Test6: Hand Frequency calculator and benchmark*****" <<std::endl;
 	long ihand=0; 
 	long nhand=10000000;
 	vector<long> count{0,0,0,0,0,0,0,0,0};
@@ -71,23 +73,23 @@ void test6(){ //poker hand type evaluation benchmark
 	}
 	clock_t end = clock();
 	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
-	cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << endl;
-	cout << "Frequency table:" <<std::endl;
-	cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << endl; 
-	cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << endl; 
-	cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << endl; 
-	cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << endl; 
-	cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << endl; 
-	cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << endl; 
-	cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << endl; 
-	cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << endl; 
-	cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << endl; 
+	std::cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;
+	std::cout << "Frequency table:" <<std::endl;
+	std::cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << std::endl; 
+	std::cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << std::endl; 
+	std::cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << std::endl; 
+	std::cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << std::endl; 
+	std::cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << std::endl; 
+	std::cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << std::endl; 
+	std::cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << std::endl; 
+	std::cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << std::endl; 
+	std::cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << std::endl; 
 }
 
 
 
 void test7(){
-	cout << "*****Test7: Hand Strength Evaludate Function and return*****" <<endl;
+	std::cout << "*****Test7: Hand Strength Evaludate Function and return*****" <<std::endl;
 	PokerHand hand(7);
 	std::cout << "Hand map is:" << std::endl;
 	hand.printarray();
@@ -101,7 +103,7 @@ void test7(){
 
 
 void test8(){
-	cout << "*****Test8: Use the hand strength function for 10M hands*****" <<endl;	
+	std::cout << "*****Test8: Use the hand strength function for 10M hands*****" <<std::endl;	
 	long ihand=0; 
 	long nhand=10000000;
 	vector<long> count{0,0,0,0,0,0,0,0,0};
@@ -118,23 +120,23 @@ void test8(){
 
 	std::reverse(count.begin(),count.end());
 	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
-	cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << endl;
-	cout << "Frequency table:" <<std::endl;
-	cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << endl; 
-	cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << endl; 
-	cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << endl; 
-	cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << endl; 
-	cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << endl; 
-	cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << endl; 
-	cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << endl; 
-	cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << endl; 
-	cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << endl; 
+	std::cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;
+	std::cout << "Frequency table:" <<std::endl;
+	std::cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << std::endl; 
+	std::cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << std::endl; 
+	std::cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << std::endl; 
+	std::cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << std::endl; 
+	std::cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << std::endl; 
+	std::cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << std::endl; 
+	std::cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << std::endl; 
+	std::cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << std::endl; 
+	std::cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << std::endl; 
 }
 
 
 
 void test9(){
-	cout << "*****Test9: Initialize a deck, deal then evaluate for 10M hands*****" <<endl;	
+	std::cout << "*****Test9: Initialize a deck, deal then evaluate for 10M hands*****" <<std::endl;	
 	long ihand=0; 
 	long nhand=10000000;
 	vector<long> count{0,0,0,0,0,0,0,0,0};
@@ -154,21 +156,21 @@ void test9(){
 
 	std::reverse(count.begin(),count.end());
 	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
-	cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << endl;
-	cout << "Frequency table:" <<std::endl;
-	cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << endl; 
-	cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << endl; 
-	cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << endl; 
-	cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << endl; 
-	cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << endl; 
-	cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << endl; 
-	cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << endl; 
-	cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << endl; 
-	cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << endl; 
+	std::cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;
+	std::cout << "Frequency table:" <<std::endl;
+	std::cout << "SF (Expected: 0.0311%):      " << (double)count[0]/nhand << std::endl; 
+	std::cout << "quad (Expected: 0.168%):     " << (double)count[1]/nhand << std::endl; 
+	std::cout << "FH (Expected: 2.60%):        " << (double)count[2]/nhand << std::endl; 
+	std::cout << "flush (Expected: 3.03%):     " << (double)count[3]/nhand << std::endl; 
+	std::cout << "straight (Expected: 4.62%):  " << (double)count[4]/nhand << std::endl; 
+	std::cout << "trip (Expected: 4.83%):      " << (double)count[5]/nhand << std::endl; 
+	std::cout << "two-pair (Expected: 23.5%):  " << (double)count[6]/nhand << std::endl; 
+	std::cout << "pair (Expected: 43.8%):      " << (double)count[7]/nhand << std::endl; 
+	std::cout << "high-card(Expected: 17.4%):  " << (double)count[8]/nhand << std::endl; 
 }
 
 void test10(){
-	cout << "*****Test10: Initialize a deck, deal 5 players then evaluate for 10M hands*****" <<endl;	
+	std::cout << "*****Test10: Initialize a deck, deal 5 players then evaluate for 10M hands*****" <<std::endl;	
 	long ihand=0; 
 	long nhand=10000000;
 	vector<long> count{0,0,0,0,0,0,0,0,0};
@@ -191,5 +193,5 @@ void test10(){
 
 	std::reverse(count.begin(),count.end());
 	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
-	cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << endl;
+	std::cout << nhand << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;
 }

@@ -51,6 +51,7 @@ struct ActionHistory {
      int aggressor = 0;
      int player_status[9] = {}; //0: no player 1: in game 2:folded
      int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
+     int raise_amount = 0; // raise size - previous raise size
      struct ActionHistory;
      
      //Info below are updated at the end of the game
