@@ -329,7 +329,7 @@ bool PokerHand::_is_one_pair(){
 		if(handmap[0][rank]==2) { //found first pair
 			(*it)=rank;it++; //document it!
 			for(int rank2=14; rank2>=2; rank2--){ //now start to record the strengths, again downward from Ace (14).
-				if(handmap[0][rank2]==1 && it!=strength.end()){
+				if(handmap[0][rank2]==1 && it!= (strength.end()-1)  ){ //need strength.end()-1 here because we only need 3 kickers for 1 pair hand, thus last entry of vector is unpopulated
 					(*it)=rank2; it++; 
 				}
 			}
