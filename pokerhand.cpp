@@ -63,7 +63,7 @@ PokerHand::PokerHand (const char* pokerhand) { //constructor from a string input
 	      	}
 	      	pokerhand++;
 
-		Card card(j,i);
+		Card card(i,j);
 		hand.push_back(card); //update the vector of cards
 
 	      	if(i==1) {handmap[j][14]++; handmap[0][14]++;} //update the handmap
