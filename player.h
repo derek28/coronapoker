@@ -44,12 +44,13 @@ public:
 	void SetStatus(int status);
 	
 	void SetID(int id);
-	
+
   	void ResetHoleCards(); //throw away hole card
-	void SetHoleCards(Card *cards);	
+	void SetHoleCards(const Card & cards);	
+	vector<Card> GetHoleCards();
   
 private:
-  	Card hole_cards[2];
+  	vector<Card> hole_cards;
 /*consider remove*/  	int stack_size_;   //Reason: read from game_state instead
   	int player_type_; 	//various types of AI, or human(0)
   	int status_;		// See #define at top //read from game_state instead 

@@ -118,10 +118,13 @@ void Player::ResetHoleCards() {
 	// don't know what to do yet
 }
 
-void Player::SetHoleCards(Card *cards) {
-	///
+void Player::SetHoleCards(const Card & cards) {
+	hole_cards.push_back(cards);
 }
 
+vector<Card> Player::GetHoleCards() {
+	return hole_cards;
+}
 void Player::SetID(int id) {
 	player_id_ = id;
 }

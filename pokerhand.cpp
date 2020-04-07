@@ -93,7 +93,7 @@ bool operator > (const PokerHand &ph1, const PokerHand &ph2) {
 	return (ph1.strength > ph2.strength);
 }
 
-void PokerHand::add( const Card & card){
+void PokerHand::add(Card card){
 	hand.push_back(card);
 
 	int i=card.GetRank();

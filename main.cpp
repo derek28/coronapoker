@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
 	cout << "Hello, Corona!" << endl;
-
+	std::srand((unsigned) time(0));
 	// Initialize Game
     Game game;
 	// Define the 2 players, one AI, the other AI/player	

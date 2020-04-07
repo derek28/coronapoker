@@ -39,7 +39,8 @@ void Game::RemovePlayer(int seat) {
 
 void Game::StartAHand() {
 
-	Card dealt_cards[2];
+	vector<Card> dealt_cards;
+    dealt_cards.reserve(2);
 	deck.shuffle();
     #ifdef DEBUG
         std::cout << "[Debug] Starting a hand" << std::endl;
@@ -47,9 +48,11 @@ void Game::StartAHand() {
         deck.print();
     #endif
 	for (int i = 0; i < NUM_OF_PLAYERS; i++) {
-		dealt_cards[0] = deck.deal();
-		dealt_cards[1] = deck.deal();
-		players[i].SetHoleCards(dealt_cards);
+        dealt_cards.clear();
+		dealt_cards.push_back(deck.deal());
+		dealt_cards.push_back(deck.deal());
+		players[i].SetHoleCards(dealt_cards[0]);
+        players[i].SetHoleCards(dealt_cards[1]);
 
         #ifdef DEBUG
         std::cout << "[Debug] Hole card of Player Seat" << i << ":";
@@ -146,7 +149,8 @@ bool Game::HasReachShowdown() {
 
 vector<int> Game::GetWinner(){
     vector<int> winner;
-    if(game_state_.num_player_in_hand == 1){
+
+    if(game_state_.num_player_in_hand == 1) {
         for (int i = 0 ; i < 9 ; i++){
             if (game_state_.player_status[i] == 1) { // 1: in game, 2: folded
                 winner.push_back(i);
@@ -154,41 +158,39 @@ vector<int> Game::GetWinner(){
         }
     }
     else{
-        std::cerr << "[ERROR] GetWinner for showdown is not available";
-        /*winner.push_back(0);
-        int winning_strength = 0;
+        vector<PokerHand> poker_hands;
+        vector<int> showdown_player_index; 
         for (int i = 0 ; i < 9 ; i++) {
             if(game_state_.player_status[i] == 1) { //1: in game
-                PokerHand current_hand; 
-                current_hand.add( game_state_.player_hole_cards[i][0]);
-                current_hand.add( game_state_.player_hole_cards[i][1]);
-                current_hand.add( game_state_.community_cards[0]);
-                current_hand.add( game_state_.community_cards[1]);
-                current_hand.add( game_state_.community_cards[2]);
-                current_hand.add( game_state_.community_cards[3]);
-                current_hand.add( game_state_.community_cards[4]);
+                PokerHand temp;
+                temp.add( players[i].GetHoleCards().at(0) );
+                temp.add( players[i].GetHoleCards().at(1) );
 
-                vector<int> current_strength = current_hand.GetStrength();
+                std::cout << "Player " << i << " shows " << players[i].GetHoleCards().at(0) << players[i].GetHoleCards().at(1) << std::endl;
+                temp.add( game_state_.community_cards[0]);
+                temp.add( game_state_.community_cards[1]);
+                temp.add( game_state_.community_cards[2]);
+                temp.add( game_state_.community_cards[3]);
+                temp.add( game_state_.community_cards[4]);
+                poker_hands.push_back(temp);
+                showdown_player_index.push_back(i);
+            }
+        }
 
-                #ifdef DEBUG
-                std::cout<< "[DEBUG] Player" << i << ":" ;
-                current_hand.print();
-                #endif
-                int current_hand_strength = 0;
-                for (int i = 0 ; i < 6 ; i++) {
-                    current_hand_strength += pow(15,5-i) *current_strength[i];
-                }
-
-                if(winning_strength < current_hand_strength) {
-                    winner.clear();
-                    winner.push_back(i);
-                    winning_strength=current_hand_strength;
-                }
-                if(winning_strength == current_hand_strength) {
-                    winner.push_back(i);
-                }
+        std::cout << poker_hands.size() << std::endl;
+        for (int i = 0 ; i < poker_hands.size() ; i++ ) {
+            if (winner.size() == 0) {
+                winner.push_back(showdown_player_index[i]);
+            }
+            else if (poker_hands[i] > poker_hands[winner[0]] ) {
+                winner.clear();
+                winner.push_back(showdown_player_index[i]);
             } 
-        }*/ 
+            else if (poker_hands[i] == poker_hands[winner[0]] ) {
+                winner.push_back(showdown_player_index[i]);
+            }
+        }
+
     }
     #ifdef DEBUG
         std::cout<< "[DEBUG] Found winner: " << winner[0] << ". Nb of winners: " << winner.size() << std::endl ;
@@ -232,6 +234,10 @@ void Game::SetupNextStreet() {
     game_state_.current_street += 1;
     
     int cards_to_deal = 0 ;
+
+    #ifdef DEBUG
+        std::cout << "[DEBUG] Dealer deals next street: " << game_state_.current_street << std::endl;
+    #endif
     switch (game_state_.current_street) {
         case 1:
             cards_to_deal = 3;
@@ -245,7 +251,7 @@ void Game::SetupNextStreet() {
             cards_to_deal = 0;
             break;
         default:
-            std::cerr << "[Error] Not supposed to be here" << std::endl;
+            std::cerr << "[Error] game_state_.current_street is out of bound: " << game_state_.current_street << std::endl;
     }
 
     for (int i = 0 ; i < cards_to_deal ; i++ ) {
@@ -263,9 +269,9 @@ void Game::UpdateGameState(ActionWithID ac) {
     //Correct ac if it is invalid
     int biggest_bet_amount = *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
     if (ac.player_action.action == 1 ) {
-        if (ac.player_action.amount !=  biggest_bet_amount) {
+        if (ac.player_action.amount + game_state_.bet_ring[ac.ID] !=  biggest_bet_amount) {
             std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
-                      << "Should be: " <<  biggest_bet_amount << std::endl;
+                      << "Should be: " <<  biggest_bet_amount - game_state_.bet_ring[ac.ID] << std::endl;
             ac.player_action.amount = 0;
             ac.player_action.action = 0;
         }

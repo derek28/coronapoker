@@ -28,7 +28,7 @@ public:
 
 	~PokerHand (); //destructor
 
-	void add (const Card & ); //add a card to the card map
+	void add (Card ); //add a card to the card map
 	
 	void print();
 	void printarray();
