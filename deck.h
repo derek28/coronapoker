@@ -12,6 +12,7 @@ public:
 	void shuffle();
 	void print();
 	Card deal();
+	void RemoveCard(Card c);
 private:
 	std::vector<Card> thedeck;
 
