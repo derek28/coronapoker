@@ -2,6 +2,11 @@
 #include <iostream>
 
 
+#define SPADE	1
+#define HEART	2
+#define CLUB	3
+#define	DIAMOND	4	
+
 class Card {
 public:
 	Card(); //default constructor, generate a random card

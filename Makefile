@@ -1,9 +1,9 @@
 #CFLAGS = -O1 -std=c++11
 CFLAGS = -g -fstack-protector-all -std=c++11
 CC = g++
-DEPS = card.h deck.h pokerhand.h player.h game.h
-OBJ = main.o pokerhand.o card.o deck.o player.o game.o
-OBJTEST = test.o pokerhand.o card.o deck.o player.o game.o
+DEPS = card.h deck.h pokerhand.h player.h game.h strength.h
+OBJ = main.o pokerhand.o card.o deck.o player.o game.o strength.o
+OBJTEST = test.o pokerhand.o card.o deck.o player.o game.o strength.o
 
 all: poker test
 

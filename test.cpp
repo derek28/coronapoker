@@ -5,15 +5,32 @@
 #include<cstdlib>
 #include"card.h"
 #include"deck.h"
+#include"strength.h"
 
+using namespace std;
 
 void testPokerhandComparison();
 
-using namespace std;
+void testHandStrength(); 
+
 int main(){
     std::srand(std::time(0));
-    testPokerhandComparison();
+    testHandStrength();
     return 0;
+}
+
+void testHandStrength() {
+	Card hd[2];
+	Card com[3];
+//	hd[0] = Card(10, SPADE);
+//	hd[1] = Card(9, SPADE);
+	hd[0] = Card(3, HEART);
+	hd[1] = Card(2, HEART);
+	com[0] = Card(7, SPADE);
+	com[1] = Card(8, SPADE);
+	com[2] = Card(2, DIAMOND);	
+	float strength = GetHandStrength(hd, com, 3, NULL);
+	cout << "Hand strength = " << strength << endl;
 }
 
 void testPokerhandComparison() {
