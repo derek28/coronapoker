@@ -9,6 +9,8 @@
 
 float GetHandStrength(Card *ph, Card *com, int nComCards, float **range);
 
+float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range);
+
 float GetHandEquity(Card *a, Card *b, Card *com, int nComCards);
 
 

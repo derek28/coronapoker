@@ -104,7 +104,7 @@ void PokerHand::add(Card card){
 	handmap[j][i]++;
 	handmap[0][i]++;
 	handmap[j][0]++;
-
+//	cout << "Add " << card << " success" << endl;
 	this->UpdateStrength();
 }
 

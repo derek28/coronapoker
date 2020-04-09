@@ -38,9 +38,10 @@ void Deck::RemoveCard(Card c) {
 	for (int i = 0; i < thedeck.size(); i++) {
 		if (thedeck[i] == c) {
 			thedeck.erase(thedeck.begin() + i);
-			break;
+			return;
 		}
 	}
+	cerr << "Deck: card removal failure, no such card found." << endl;
 }
 
 
