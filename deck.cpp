@@ -10,6 +10,7 @@ using namespace std;
 
 
 Deck::Deck() { //default initializer
+	thedeck.reserve(52);
 	for (int i = 1; i < 5; i++)
 		for (int j = 1; j < 14; j++) {
 			Card temp(j, i);
@@ -17,22 +18,29 @@ Deck::Deck() { //default initializer
 		}
 }
 
-void Deck::print() {
+void Deck::Print() {
 	for (auto &i: thedeck)
 		cout << i << " ";
 
 	cout << endl;
 }
 
-Card Deck::deal() {
+Card Deck::Deal() {
 	Card temp = thedeck.back();
 	thedeck.erase(thedeck.end()); //remove the end of the card.
 	return temp;
 }
 
-void Deck::shuffle() {
+void Deck::Shuffle() {
 	std::random_shuffle (thedeck.begin(), thedeck.end());
 }
 
-
+void Deck::Regenerate() {
+	thedeck.clear();
+	for (int i = 1; i < 5; i++)
+		for (int j = 1; j < 14; j++) {
+			Card temp(j, i);
+			thedeck.push_back(temp);
+		}	
+}
 

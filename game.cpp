@@ -41,16 +41,17 @@ void Game::StartAHand() {
 
 	vector<Card> dealt_cards;
     dealt_cards.reserve(2);
-	deck.shuffle();
-    #ifdef DEBUG
-        std::cout << "[Debug] Starting a hand" << std::endl;
-        std::cout << "[Debug] Deck is:";
-        deck.print();
-    #endif
+    deck.Regenerate();
+	deck.Shuffle();
+//    #ifdef DEBUG
+//        std::cout << "[Debug] Starting a hand" << std::endl;
+//        std::cout << "[Debug] Deck is:";
+//        deck.print();
+//    #endif
 	for (int i = 0; i < NUM_OF_PLAYERS; i++) {
         dealt_cards.clear();
-		dealt_cards.push_back(deck.deal());
-		dealt_cards.push_back(deck.deal());
+		dealt_cards.push_back(deck.Deal());
+		dealt_cards.push_back(deck.Deal());
 		players[i].SetHoleCards(dealt_cards[0]);
         players[i].SetHoleCards(dealt_cards[1]);
 
@@ -59,6 +60,8 @@ void Game::StartAHand() {
         std::cout << dealt_cards[0] << dealt_cards[1] << std::endl;
         #endif
 	}
+
+    game_state_.current_street = 0;
 }
 
 void Game::PostBlinds() {
@@ -66,13 +69,11 @@ void Game::PostBlinds() {
     std::cout << "[Debug] Posting Blinds";
     #endif
     ComputeBlindPos();
-    players[sb_pos_].Bet(game_state_.sb_amount);
-    players[bb_pos_].Bet(game_state_.bb_amount);
+    players[game_state_.sb_pos].Bet(game_state_.sb_amount);
+    players[game_state_.bb_pos].Bet(game_state_.bb_amount);
     
     //update game state
     std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
-    game_state_.bb_pos = bb_pos_;
-    game_state_.sb_pos = sb_pos_;
     game_state_.stack_size[game_state_.sb_pos] -= game_state_.sb_amount;
     game_state_.stack_size[game_state_.bb_pos] -= game_state_.bb_amount;
     game_state_.bet_ring[game_state_.sb_pos] = game_state_.sb_amount;
@@ -89,6 +90,7 @@ ActionWithID Game::AskPlayerToAct() {
     ActionWithID player_action_with_id;
     player_action_with_id.ID = game_state_.next_player_to_act;
     player_action_with_id.player_action = players[game_state_.next_player_to_act].Act(game_state_);
+
 	#ifdef DEBUG
 		std::cout << "[DEBUG] Player " << player_action_with_id.ID << " takes action: " \
                     << player_action_with_id.player_action.action << "; Amount: " \
@@ -106,27 +108,32 @@ void Game::ComputeBlindPos() {
         std:cerr << "Player number is incorrect:" << game_state_.num_player << std::endl;
     
 
-    sb_pos_ = FindNextPlayer(btn_pos_);
-    bb_pos_ = FindNextPlayer(sb_pos_);
+    game_state_.sb_pos = FindNextPlayer(game_state_.btn_pos);
+    game_state_.bb_pos = FindNextPlayer(game_state_.sb_pos);
 
     if (game_state_.num_player == 2) {
-        std::swap(sb_pos_, bb_pos_);
+        std::swap(game_state_.sb_pos, game_state_.bb_pos);
     }
     
     #ifdef DEBUG
-    std::cout << "[Debug] sb_pos:" << sb_pos_ << ",bb_pos:" << bb_pos_ << std::endl;
+    std::cout << "[Debug] sb_pos:" << game_state_.sb_pos << ",bb_pos:" << game_state_.bb_pos << std::endl;
     #endif
 }
 
 int Game::FindNextPlayer(int i) {
     i++;
-    while ( game_state_.player_status[i%9] != 1)
-      i++;
+    while ( game_state_.player_status[i%9] != 1 || IsPlayerAllIn(i) ) {
+        i++;
+    }
     return i%9;
 }
 
+bool Game::IsPlayerAllIn(int i) {
+    return  ( game_state_.stack_size[i] == 0 ) && ( game_state_.player_status[i] == 1 );
+}
+
 void Game::MoveBtn(){
-    btn_pos_ = FindNextPlayer(btn_pos_);
+    game_state_.btn_pos = FindNextPlayer(game_state_.btn_pos);
 }
 
 
@@ -255,12 +262,16 @@ void Game::SetupNextStreet() {
     }
 
     for (int i = 0 ; i < cards_to_deal ; i++ ) {
-        game_state_.community_cards.push_back(deck.deal());
+        game_state_.community_cards.push_back(deck.Deal());
     }
 
-
-    game_state_.next_player_to_act = FindNextPlayer(bb_pos_);
+    if (game_state_.num_player == 2)
+        game_state_.next_player_to_act = bb_pos_;
+    else
+        game_state_.next_player_to_act = FindNextPlayer(bb_pos_);
     aggressor_ = FindNextPlayer(bb_pos_); 
+    game_state_.aggressor = FindNextPlayer(bb_pos_); 
+    game_state_.raise_amount = game_state_.bb_amount;
 }
 
 
@@ -292,7 +303,12 @@ void Game::UpdateGameState(ActionWithID ac) {
         game_state_.bet_ring[ac.ID] += ac.player_action.amount;
         break;
     case 2:
-        std::cerr << "[ERROR] Process 'Raise action' is not supported yet" << std::endl;
+        game_state_.aggressor = ac.ID;
+        game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
+        game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
+        game_state_.bet_ring[ac.ID] = ac.player_action.amount;
+        
+
         break;
     default:
         std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
@@ -305,4 +321,13 @@ void Game::UpdateGameState(ActionWithID ac) {
     game_state_.next_player_to_act = FindNextPlayer(game_state_.next_player_to_act);
 /*To be added*/    //Update game history game_state_.ActionHistory
 
+}
+
+void Game::RemovePlayerCard() {
+    for (int i = 0 ; i < game_state_.num_player; i++ )
+        players[i].ResetHoleCards();
+}
+
+void Game::CleanCommunityCard() {
+    game_state_.community_cards.clear();
 }

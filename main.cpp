@@ -18,16 +18,17 @@ int main()
     game.AddPlayer(0,10000,1);
 	game.AddPlayer(1,10000,1);
 	
-    //while (1) {  // while no one is broke
+    for (int ihand = 0 ; ihand < 10 ; ihand++ ) {  //run 10 hands
 /*To be added*/        // maybe check couple criteria to make sure game can happen
 		game.PostBlinds();
-		game.PrintGameState();
+		//game.PrintGameState();
         game.StartAHand();
-        game.PrintGameState();
+        //game.PrintGameState();
         
 		while (1) { //it breaks when a hand finishes
+			//Find next player to act
 
-			//Ask player (pointed by ) to act
+			//Ask player (pointed by nextplayertoact) to act
 			ActionWithID ac = game.AskPlayerToAct();
 			game.UpdateGameState(ac);
 			game.PrintGameState();
@@ -57,20 +58,12 @@ int main()
 				game.PayWinner(winners);
 				break;
 			}
-
-
 		}
 		game.PrintGameState();
-		// player action
-		// flop
-		// player action
-		// turn
-		// player action
-		// river 
-		// player action
-		// showdown
-		// chip counting
-
-//	}	
+		game.CleanCommunityCard();
+		game.RemovePlayerCard();
+		game.MoveBtn();
+		std::cin.ignore();
+	}	
 	return 0;
 }

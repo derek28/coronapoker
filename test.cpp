@@ -49,13 +49,13 @@ void test4(){ //test of deck generation, shuffle and deal.
 	std::cout << "*****Test4: Deck generation and shuffling*****" <<std::endl;
 	Deck deck;
 	std::cout << "deck before shuffling:" << std::endl; 
-	deck.print();
-	deck.shuffle();
+	deck.Print();
+	deck.Shuffle();
 	std::cout << "deck after shuffling:" << std::endl;
-	deck.print();
+	deck.Print();
 	std::cout << "dealing a card:" << std::endl;
-	std::cout << "Card being dealt is: " << deck.deal() << std::endl;
-	deck.print();
+	std::cout << "Card being dealt is: " << deck.Deal() << std::endl;
+	deck.Print();
 }
 
 void test5(){ //generate and print PokerHand
@@ -162,8 +162,8 @@ void test9(){
 	while(ihand<nhand){
 		Deck theDeck;
 		PokerHand theHand;
-		theDeck.shuffle();
-		for (int i=0; i<7;i++) theHand.add(theDeck.deal());
+		theDeck.Shuffle();
+		for (int i=0; i<7;i++) theHand.add(theDeck.Deal());
 		vector <int> strength=theHand.GetStrength();
 		count[strength[0]]++; 
 		ihand++;
@@ -196,10 +196,10 @@ void test10(){
 	while(ihand<nhand){
 		Deck theDeck;
 		PokerHand theHand;
-		theDeck.shuffle();
+		theDeck.Shuffle();
 		
 		for(int j=0;j<5;j++){
-			for (int i=0; i<7;i++) theHand.add(theDeck.deal());
+			for (int i=0; i<7;i++) theHand.add(theDeck.Deal());
 			vector <int> strength=theHand.GetStrength();
 			count[strength[0]]++; 
 			ihand++;
