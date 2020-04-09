@@ -35,6 +35,7 @@ void Deck::Shuffle() {
 	std::random_shuffle (thedeck.begin(), thedeck.end());
 }
 
+<<<<<<< .merge_file_a26276
 void Deck::Regenerate() {
 	thedeck.clear();
 	for (int i = 1; i < 5; i++)
@@ -43,4 +44,15 @@ void Deck::Regenerate() {
 			thedeck.push_back(temp);
 		}	
 }
+=======
+void Deck::RemoveCard(Card c) {
+	for (int i = 0; i < thedeck.size(); i++) {
+		if (thedeck[i] == c) {
+			thedeck.erase(thedeck.begin() + i);
+			break;
+		}
+	}
+}
+
+>>>>>>> .merge_file_a18764
 

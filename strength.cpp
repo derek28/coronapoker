@@ -6,6 +6,7 @@
 #include "card.h"
 #include "pokerhand.h"
 #include "strength.h"
+#include "deck.h"
 
 /*
  * input argument:
@@ -78,7 +79,7 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
 			cout << combos[i][j] << " ";
 		}
 		cout << endl;
-	}
+	}	///////////////////////////
 
 	// Create 2 pokerhand for comparison
 	PokerHand poker1, poker2; 
@@ -116,6 +117,80 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
 	}
 
 	float result = (wins + ties / 2) / (wins + ties + loses);
-
 	return result;
 }
+
+/* 
+ * Calculate equity of 2 players. *
+ * Input Arguments:
+ * @a: hand a, type Card[2]
+ * @b: hand b, type Card[2]
+ * @com: community cards, type Card*
+ * #nComCards: # of community cards, int
+ */
+float GetHandEquity(Card *a, Card *b, Card *com, int nComCards) {
+	float eq1, eq2;
+	float wins = 0.0;	
+	float ties = 0.0;
+	float loses = 0.0;
+	int count = 0;				// total count
+	
+	Deck deck;
+	deck.RemoveCard(a[0]);
+	deck.RemoveCard(a[1]);
+	deck.RemoveCard(b[0]);
+	deck.RemoveCard(b[1]);
+
+	if (nComCards < 0 || nComCards > 4) {
+		cerr << "calc_equity(): Invalid input." << endl;
+	}
+
+	for (int i = 0; i < nComCards; i++) {
+		deck.RemoveCard(com[i]);
+	}
+
+	PokerHand ph1, ph2;
+
+	ph1.add(a[0]);
+	ph1.add(a[1]);
+	ph2.add(b[0]);
+	ph2.add(b[1]);
+
+	for (int i = 0; i < nComCards; i++) {
+		ph1.add(com[i]);
+		ph2.add(com[i]);
+	}
+
+//	deck.print();
+	for (int i = 0; i < 100000; i++) {
+		Deck dk = deck;
+		PokerHand ph1_sim = ph1;
+		PokerHand ph2_sim = ph2;
+
+		dk.shuffle();
+		// deal the common cards to river
+		for (int j = nComCards; j < 5; j++) {
+			Card temp = dk.deal();
+			ph1_sim.add(temp);
+			ph2_sim.add(temp);
+		}
+
+	//	ph1_sim.print();
+	//	ph2_sim.print();	
+
+		if (ph1_sim > ph2_sim) {
+			wins += 1.0;
+	//		cout << "hand 1 wins" << endl;
+		} else if (ph1_sim == ph2_sim) {
+			ties += 1.0;
+	//		cout << "draw" << endl;
+		} else {
+			loses += 1.0;
+	//		cout << "hand 2 wins" << endl;
+		}
+		count++;
+	}
+
+	return ((wins + ties / 2) / (float)count);
+}
+

@@ -21,16 +21,20 @@ int main(){
 
 void testHandStrength() {
 	Card hd[2];
+	Card op[2];
 	Card com[3];
-//	hd[0] = Card(10, SPADE);
-//	hd[1] = Card(9, SPADE);
-	hd[0] = Card(3, HEART);
-	hd[1] = Card(2, HEART);
+	op[0] = Card(9, CLUB);
+	op[1] = Card(9, DIAMOND);
+	hd[0] = Card(6, HEART);
+	hd[1] = Card(5, HEART);
 	com[0] = Card(7, SPADE);
 	com[1] = Card(8, SPADE);
 	com[2] = Card(2, DIAMOND);	
 	float strength = GetHandStrength(hd, com, 3, NULL);
-	cout << "Hand strength = " << strength << endl;
+	cout << "Immediate hand strength = " << strength << endl;
+	float equity = GetHandEquity(hd, op, com, 3);
+	cout << "Hand equity against " << op[0] << " " << op[1] << " is " 
+			<< equity << endl;
 }
 
 void testPokerhandComparison() {
