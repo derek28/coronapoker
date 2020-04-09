@@ -45,9 +45,21 @@ Action Player::Act(GameState game_state){
 //	action_to_return.amount = 0 ;
 
 //  Always call
-	action_to_return.action = 1 ; //1 = call
-	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-									- game_state.bet_ring[player_id_]  ;
+//	action_to_return.action = 1 ; //1 = call
+//	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
+//									- game_state.bet_ring[player_id_] ;
+
+//  50% raise 50% call
+	if ( rand() % 100 < 50) {
+		action_to_return.action = 1 ; //1 = call
+		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
+										- game_state.bet_ring[player_id_] ;	
+	} else {
+		action_to_return.action = 2 ; //2 = raise
+		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
+										+ game_state.raise_amount;
+	}
+
 
 	return action_to_return;
 }
@@ -115,7 +127,7 @@ int Player::AddToStack(int add_amount) {
 }
 
 void Player::ResetHoleCards() {
-	// don't know what to do yet
+	hole_cards.clear();
 }
 
 void Player::SetHoleCards(const Card & cards) {

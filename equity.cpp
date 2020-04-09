@@ -50,10 +50,10 @@ float calc_equity(Card *a, Card *b, Card *com, int nComCards) {
 		PokerHand ph1_sim = ph1;
 		PokerHand ph2_sim = ph2;
 
-		dk.shuffle();
+		dk.Shuffle();
 		// deal the common cards to river
 		for (int j = nComCards; j < 5; j++) {
-			Card temp = dk.deal();
+			Card temp = dk.Deal();
 			ph1_sim.add(temp);
 			ph2_sim.add(temp);
 		}

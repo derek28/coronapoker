@@ -39,6 +39,7 @@ public:
 
     bool IsCurrentHandFinished();
     bool IsPotUncontested();
+    bool IsPlayerAllIn(int i);
     bool HasReachShowdown();
     bool IsEndOfStreet(); 						//check if this betting round is done. maybe this function is not necessary;
     void CollectMoneyFromBetRing();             //Collect money from bet ring and put into middle
@@ -47,8 +48,8 @@ public:
     //However, when someone bets, assign it_end = it
     // when someone folds, mydeque.erase (it); //what happens to itself?? Idk..
     void SetupNextStreet();
-
-
+    void RemovePlayerCard();
+    void CleanCommunityCard();
     void UpdateGameState(ActionWithID ac);
     void PrintGameState();  //may consider add a parameter to redirect output, append mode
 private:

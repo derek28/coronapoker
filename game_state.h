@@ -64,7 +64,7 @@ struct ActionHistory {
      void print() { //can take parameter and redirect to a file later
          std::cout << "*************game_state***************" << std::endl;
          std::cout << "num_player (on the table):" << num_player << std::endl;
-         std::cout << "btn_pos_:" << btn_pos << ",sb_pos_:" << sb_pos << ",bb_pos_:" << bb_pos << std::endl;
+         std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
          std::cout << "starting_stack_size:";
          for (int i = 0; i < 9; i++)
 		     std::cout << starting_stack_size[i] << ",";
