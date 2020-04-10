@@ -20,24 +20,23 @@ int main()
 	
     for (int ihand = 0 ; ihand < 10 ; ihand++ ) {  //run 10 hands
 /*To be added*/        // maybe check couple criteria to make sure game can happen
+		game.ResetGameState();
 		game.PostBlinds();
-		//game.PrintGameState();
-        game.StartAHand();
-        //game.PrintGameState();
+        game.ShuffleAndDeal();
         
 		while (1) { //it breaks when a hand finishes
 			//Find next player to act
 
 			//Ask player (pointed by nextplayertoact) to act
-			ActionWithID ac = game.AskPlayerToAct();
+			LegalActions legal_ac = game.GetAllLegalActions();
+			ActionWithID ac = game.AskPlayerToAct(legal_ac);
+			ac = game.VerifyAction(ac, legal_ac);
 			game.UpdateGameState(ac);
-			game.PrintGameState();
+			//game.PrintGameState();
 
 			//Check if there is only 1 player left
 			if (game.IsPotUncontested() ){
-				#ifdef DEBUG
-					std::cout << "[DEBUG] reach end of game: pot uncontested" << std::endl;
-			    #endif
+				std::cout << "[INFO] reach end of game: pot uncontested" << std::endl;
 				vector<int> winners = game.GetWinner();
 				game.CollectMoneyFromBetRing();
 				game.PayWinner(winners);
@@ -51,15 +50,12 @@ int main()
 
 			//End of game condition: we reach showdown
             if (game.HasReachShowdown()) {
-				#ifdef DEBUG
-					std::cout << "[DEBUG] reach end of game: showdown" << std::endl;
-				#endif
+				std::cout << "[INFO] reach end of game: showdown" << std::endl;
 			    vector<int> winners = game.GetWinner();
 				game.PayWinner(winners);
 				break;
 			}
 		}
-		game.PrintGameState();
 		game.CleanCommunityCard();
 		game.RemovePlayerCard();
 		game.MoveBtn();

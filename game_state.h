@@ -20,6 +20,12 @@
      Action player_action;
  };
  
+struct LegalActions {
+    Action LegalCall;
+    Action LegalFold;
+    Action LegalRaise;
+};
+
 struct ActionHistory {
     std::vector<ActionWithID> preflop;
     std::vector<ActionWithID> flop;
@@ -51,7 +57,9 @@ struct ActionHistory {
      int aggressor = 0;
      int player_status[9] = {}; //0: no player 1: in game 2:folded
      int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
+     int allin_state[9] = {};
      int raise_amount = 0; // raise size - previous raise size
+     int bankroll[9] = {};
      struct ActionHistory;
      
      //Info below are updated at the end of the game
@@ -65,9 +73,9 @@ struct ActionHistory {
          std::cout << "*************game_state***************" << std::endl;
          std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
-         std::cout << "starting_stack_size:";
+         std::cout << "bankroll:";
          for (int i = 0; i < 9; i++)
-		     std::cout << starting_stack_size[i] << ",";
+		     std::cout << bankroll[i] << ",";
          std::cout << std::endl;
          std::cout << "*********" << std::endl;
          std::cout << "Number of players in hand: " << num_player_in_hand << std::endl;

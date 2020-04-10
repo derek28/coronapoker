@@ -49,8 +49,8 @@ Action Player::Act(GameState game_state){
 //	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
 //									- game_state.bet_ring[player_id_] ;
 
-//  50% raise 50% call
-	if ( rand() % 100 < 50) {
+//  30% raise 70% call
+	if ( rand() % 100 < 70) {
 		action_to_return.action = 1 ; //1 = call
 		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
 										- game_state.bet_ring[player_id_] ;	

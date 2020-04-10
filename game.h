@@ -27,13 +27,13 @@ public:
     void RemovePlayer(int seat);
 
 
-    void StartAHand(); 							//Set everyplayer to be in hand by populate deque, push UTG first 
+    void ShuffleAndDeal(); 							//Set everyplayer to be in hand by populate deque, push UTG first 
 	void PostBlinds();							// Set Small Blinds / Bid Blinds
     void ComputeBlindPos();
     
     void MoveBtn();
     int FindNextPlayer(int i);                  // Input seat index i (range 0 to 8), return index of next seated player
-    ActionWithID AskPlayerToAct();					// All the players make action until IsEndOfStreet(). 
+    ActionWithID AskPlayerToAct(LegalActions ac);   // All the players make action until IsEndOfStreet(). 
     vector<int> GetWinner(); 					// Check hand strength of players and return position ID of winner(s)
     void PayWinner(vector<int> winners);        // Move money from pot to winner(s)'s stack
 
@@ -50,16 +50,19 @@ public:
     void SetupNextStreet();
     void RemovePlayerCard();
     void CleanCommunityCard();
+    ActionWithID VerifyAction(ActionWithID ac, LegalActions legal_action);
+    LegalActions GetAllLegalActions();
     void UpdateGameState(ActionWithID ac);
+    void ResetGameState();
     void PrintGameState();  //may consider add a parameter to redirect output, append mode
 private:
-    int big_blind_ = 100;
-    int small_blind_ = 50;
-    int btn_pos_ = 0;
-    int sb_pos_ = 0;
-    int bb_pos_ = 0;
-	int pot_size_ = 0;
-	int aggressor_;	 // When someone bets/raises, he opens action. All other ppl needs to call/fold/all-in in order to go to next round.
+    //int big_blind_ = 100;
+    //int small_blind_ = 50;
+    //int btn_pos_ = 0; //obsolete
+    //int sb_pos_ = 0; //obsolete
+    //int bb_pos_ = 0; //obsolete
+	//int pot_size_ = 0;
+	//int aggressor_;	 // When someone bets/raises, he opens action. All other ppl needs to call/fold/all-in in order to go to next round.
                          // This counter points to the player who is the aggressor
 	Player players[NUM_OF_PLAYERS] ; //the index is thus player ID 
 	Deck deck;
