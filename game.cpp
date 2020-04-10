@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include <algorithm> //std::copy for array copying, std::max_element
+#include "misc.h"
 
 using namespace std;
 
@@ -67,8 +68,8 @@ void Game::ShuffleAndDeal() {
 
 void Game::PostBlinds() {
     ComputeBlindPos();
-    std::cout << "[INFO] SB(seat" << game_state_.sb_pos << ") posts SB:" << game_state_.sb_amount << std::endl;
-    std::cout << "[INFO] BB(seat" << game_state_.bb_pos << ") posts BB:" << game_state_.bb_amount << std::endl;
+    std::cout << "[INFO] Player " << game_state_.sb_pos << " posts SB:" << game_state_.sb_amount << std::endl;
+    std::cout << "[INFO] Player " << game_state_.bb_pos << " posts BB:" << game_state_.bb_amount << std::endl;
     players[game_state_.sb_pos].Bet(game_state_.sb_amount);
     players[game_state_.bb_pos].Bet(game_state_.bb_amount);
     
@@ -84,16 +85,17 @@ void Game::PostBlinds() {
 
 ActionWithID Game::AskPlayerToAct(LegalActions legal_actions) {
 
-    std::cout << "[INFO] Asking player " << game_state_.next_player_to_act << " to act." \
+    #ifdef DEBUG
+    std::cout << "[DEBUG] Asking player " << game_state_.next_player_to_act << " to act." \
                 << "(call:" << legal_actions.LegalCall.amount << "," \
-                << "min-raise:" << legal_actions.LegalRaise.amount << ")" << std::endl;
+                << "min-raise:" << legal_actions.LegalMinRaise.amount << ")" << std::endl;
+    #endif
     ActionWithID player_action_with_id;
     player_action_with_id.ID = game_state_.next_player_to_act;
     player_action_with_id.player_action = players[game_state_.next_player_to_act].Act(game_state_);
 
-	std::cout << "[INFO] Player " << player_action_with_id.ID << " takes action:" \
-                    << player_action_with_id.player_action.action << ", Amount:" \
-                    << player_action_with_id.player_action.amount << std::endl;
+	std::cout << "[INFO] Player " << player_action_with_id.ID << " " \
+                    << player_action_with_id.player_action << std::endl;
     return player_action_with_id;
 }
 
@@ -192,7 +194,7 @@ vector<int> Game::GetWinner(){
         }
 
     }
-    std::cout<< "[INFO] Winner: " << winner[0] << ". Nb of winners: " << winner.size() << std::endl ; //NEED IMPROVEMENT, VECTOR PRINT OVERLOAD??
+    std::cout<< "[INFO] Winner(s): " << winner << std::endl;
     return winner;
 }
 
@@ -219,7 +221,10 @@ void Game::CollectMoneyFromBetRing() {
         game_state_.bet_ring[i] = 0;
     }
 
+    #ifdef DEBUG
     std::cout << "[INFO] Dealer collects money from bet ring and put into pot" << std::endl ;
+    #endif
+
     std::cout << "[INFO] Pot size is: " << game_state_.pot_size << std::endl;
 }
 
@@ -246,12 +251,15 @@ void Game::SetupNextStreet() {
             std::cerr << "[Error] game_state_.current_street is out of bound: " << game_state_.current_street << std::endl;
     }
 
-    std::cout << "[INFO] Dealer deals next street: " << game_state_.current_street << std::endl;
+    #ifdef DEBUG
+        std::cout << "[DEBUG] Dealer deals next street: " << game_state_.current_street << std::endl;
+    #endif
+
     for (int i = 0 ; i < cards_to_deal ; i++ ) {
         game_state_.community_cards.push_back(deck.Deal());
     }
 
-    std::cout << "[INFO] Community card is: ";
+    std::cout << "[INFO] ***" << static_cast<StreetName> (game_state_.current_street) <<"*** ";
     for (auto const& card : game_state_.community_cards)
         std::cout << card << ' ';
     std::cout << std::endl;
@@ -269,30 +277,46 @@ void Game::SetupNextStreet() {
 void Game::UpdateGameState(ActionWithID ac) {
 
     switch (ac.player_action.action ) {
-    case 0:
-        game_state_.num_player_in_hand--;
-        game_state_.player_status[ac.ID] = 0;
-        break;
-    case 1:
-        game_state_.stack_size[ac.ID] -= ac.player_action.amount;
-        game_state_.bet_ring[ac.ID] += ac.player_action.amount;
-        break;
-    case 2:
-        game_state_.aggressor = ac.ID;
-        game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
-        game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
-        game_state_.bet_ring[ac.ID] = ac.player_action.amount;
-        break;
-    default:
-        std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
-        std::cerr << "default to fold" << std::endl;
-        game_state_.num_player_in_hand--;
-        game_state_.player_status[ac.ID] = 0;
+        case 0:
+            game_state_.num_player_in_hand--;
+            game_state_.player_status[ac.ID] = 0;
+            break;
+        case 1:
+            game_state_.stack_size[ac.ID] -= ac.player_action.amount;
+            game_state_.bet_ring[ac.ID] += ac.player_action.amount;
+            break;
+        case 2:
+            game_state_.aggressor = ac.ID;
+            game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
+            game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
+            game_state_.bet_ring[ac.ID] = ac.player_action.amount;
+            break;
+        default:
+            std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
+            std::cerr << "default to fold" << std::endl;
+            game_state_.num_player_in_hand--;
+            game_state_.player_status[ac.ID] = 0;
     }
-
-    //steps that are performed for all player actions
+    //Update game history game_state_.ActionHistory
+    switch (game_state_.current_street) {
+        case 0:
+            game_state_.action_history.preflop.push_back(ac);
+            break;
+        case 1:
+            game_state_.action_history.flop.push_back(ac);
+            break;
+        case 2:
+            game_state_.action_history.turn.push_back(ac);
+            break;
+        case 3:
+            game_state_.action_history.river.push_back(ac);
+            break;
+        
+    }
+    
+    
     game_state_.next_player_to_act = FindNextPlayer(game_state_.next_player_to_act);
-/*To be added*/    //Update game history game_state_.ActionHistory
+
 
 }
 
@@ -332,13 +356,22 @@ ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
         }
     }
     else if ( ac.player_action.action == 2) {
-        if ( ac.player_action.amount < legal_actions.LegalRaise.amount ) {
+        if ( ac.player_action.amount < legal_actions.LegalMinRaise.amount ) {
             std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
-                      << " ,should be at least: " <<  legal_actions.LegalRaise.amount \
+                      << " ,should be at least: " <<  legal_actions.LegalMinRaise.amount \
                       << " .Default to fold" << std::endl; 
             ac.player_action.amount = 0;
             ac.player_action.action = 0;
         }
+
+        if ( ac.player_action.amount > legal_actions.LegalMaxRaise.amount ) {
+            std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
+                      << " ,should be at most: " <<  legal_actions.LegalMaxRaise.amount  \
+                      << " .Default to fold" << std::endl; 
+            ac.player_action.amount = 0;
+            ac.player_action.action = 0;
+        }
+
     }
     return ac;
 }
@@ -355,11 +388,21 @@ LegalActions Game::GetAllLegalActions() {
                                     - game_state_.bet_ring[game_state_.next_player_to_act] \
                                     , game_state_.stack_size[game_state_.next_player_to_act] );
 
-    legal_actions.LegalRaise.action = 2;
-    legal_actions.LegalRaise.amount = biggest_bet_amount + game_state_.raise_amount;
-    
-    if ( biggest_bet_amount > game_state_.stack_size[game_state_.next_player_to_act] )
-        legal_actions.LegalRaise.amount = -1 ;
+    legal_actions.LegalMinRaise.action = 2;
+    legal_actions.LegalMinRaise.amount = biggest_bet_amount + game_state_.raise_amount;
+
+    legal_actions.LegalMaxRaise.action = 2;
+    legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;
+
+    if ( biggest_bet_amount > game_state_.stack_size[game_state_.next_player_to_act] ) {
+        legal_actions.LegalMinRaise.amount = -1 ;
+        legal_actions.LegalMaxRaise.amount = -1 ;
+    }
+        
+    if ( legal_actions.LegalMinRaise.amount > legal_actions.LegalMaxRaise.amount ) {
+        legal_actions.LegalMinRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;
+        legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;        
+    }
 
     return legal_actions;
 }

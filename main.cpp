@@ -4,7 +4,6 @@
 #include "pokerhand.h"
 #include "game.h"
 #include "game_state.h"
-#define DEBUG 
 
 using namespace std;
 

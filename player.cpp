@@ -10,8 +10,6 @@
 #include "player.h"
 #include <algorithm>
 
-#define DEBUG
-
 using namespace std;
 
 Player::Player() {
@@ -49,15 +47,22 @@ Action Player::Act(GameState game_state){
 //	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
 //									- game_state.bet_ring[player_id_] ;
 
-//  30% raise 70% call
-	if ( rand() % 100 < 70) {
+//  80% call 15% raise 5% big-raise
+	int rand_num = rand() % 100;
+	if ( rand_num < 80) {
 		action_to_return.action = 1 ; //1 = call
 		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
 										- game_state.bet_ring[player_id_] ;	
-	} else {
+	} 
+	else if (rand_num < 95) {
 		action_to_return.action = 2 ; //2 = raise
 		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
 										+ game_state.raise_amount;
+	} 
+	else {
+		action_to_return.action = 2 ;
+		action_to_return.amount = 5 * ( *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
+										+ game_state.raise_amount );
 	}
 
 

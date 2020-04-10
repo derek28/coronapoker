@@ -15,8 +15,6 @@
 #include <utility>
 #include <iostream>
 
-#define DEBUG 
-
 #define NUM_OF_PLAYERS	2
 
 class Game {

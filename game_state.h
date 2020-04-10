@@ -13,17 +13,37 @@
  struct Action {
      int action = 0; //fold=0, call=1, bet=2
      int amount = 0; 
+
+     friend std::ostream& operator<<(std::ostream& os, Action action)
+    {
+        switch(action.action)
+        {
+            case 0         : os << "folds";    break;
+            case 1         :
+                if (action.amount == 0) 
+                    os << "checks ";
+                else
+                    os << "calls " << action.amount; 
+                break;
+            case 2         : os << "raises " << action.amount; break;
+            default        : os << "[ERROR] Unknown Action" ;
+        }
+        return os;
+    }
  };
- 
- struct ActionWithID {
+
+
+
+struct ActionWithID {
      int ID = 0;
      Action player_action;
- };
+};
  
 struct LegalActions {
     Action LegalCall;
     Action LegalFold;
-    Action LegalRaise;
+    Action LegalMinRaise;
+    Action LegalMaxRaise;
 };
 
 struct ActionHistory {
@@ -60,14 +80,12 @@ struct ActionHistory {
      int allin_state[9] = {};
      int raise_amount = 0; // raise size - previous raise size
      int bankroll[9] = {};
-     struct ActionHistory;
+     ActionHistory action_history;
      
      //Info below are updated at the end of the game
      std::vector<Card> player_hole_cards[9];
 
 /*To be added*/ //To add range for each player.
-     
-     
      
      void print() { //can take parameter and redirect to a file later
          std::cout << "*************game_state***************" << std::endl;

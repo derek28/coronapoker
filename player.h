@@ -6,8 +6,6 @@
 
 #pragma once
 
-#define DEBUG
-
 #include <vector>
 #include <string>
 #include "card.h"
