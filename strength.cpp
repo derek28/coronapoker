@@ -227,7 +227,7 @@ float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range) {
 	if (cards_to_deal == 1) {
 		// deal the river card
 		for (i = 0; i < 46; i++) {	// 52 - 2 - 4 = 46 , total - player's cards - com cards
-			all_cards[4] = deck.deal();
+			all_cards[4] = deck.Deal();
 		//	cout << all_cards[4] << " ";
 			float t = GetHandStrength(ph, all_cards, 5, range);
 			strength += t;
@@ -239,13 +239,13 @@ float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range) {
 	if (cards_to_deal == 2) {
 		for (i = 0; i < 47; i++) {	// 52 - 2 - 3 = 47, total - player's cards - com cards
 			// deal turn card
-			all_cards[3] = deck.deal();
+			all_cards[3] = deck.Deal();
 			//cout << "i:" << i << " " << all_cards[3] << endl;
 			Deck deck_river = deck;
 			for (j = 0; j < 46 - i; j++) {
 				// deal river card
-				all_cards[4] = deck_river.deal();
-			//cout << "j:" << j << " " << all_cards[4] << endl;
+				all_cards[4] = deck_river.Deal(); 
+				//cout << "j:" << j << " " << all_cards[4] << endl; 
 				strength += GetHandStrength(ph, all_cards, 5, range);
 			}
 		}
