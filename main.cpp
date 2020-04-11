@@ -37,8 +37,9 @@ int main()
 			ActionWithID ac = game.AskPlayerToAct(legal_ac);
 			ac = game.VerifyAction(ac, legal_ac);
 			game.UpdateGameState(ac);
-			//game.PrintGameState();
-
+			#ifdef DEBUG
+			game.PrintGameState();
+			#endif
 			//Check if there is only 1 player left
 			if (game.IsPotUncontested() ){
 				std::cout << "[INFO] reach end of game: pot uncontested" << std::endl;

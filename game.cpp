@@ -44,6 +44,7 @@ int Game::AddPlayer(int seat, int stack_size, Player* player) {
     game_state_.starting_stack_size[seat] = stack_size;
     game_state_.bankroll[seat] = 10000 * 1000; //1000 buyins
     game_state_.player_status[seat] = 1; //1=in-game
+    players[seat]->SetID(seat);
 }
 
 void Game::RemovePlayer(int seat) {

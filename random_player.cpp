@@ -11,7 +11,7 @@
 
 #include "player.h"
 
-Action RandomPlayer::Act(GameState) {
+Action RandomPlayer::Act(GameState game_state) {
     Action action_to_return;
 	int rand_num = rand() % 100;
 	if ( rand_num < 80) {
