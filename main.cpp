@@ -4,7 +4,7 @@
 #include "pokerhand.h"
 #include "game.h"
 #include "game_state.h"
-
+#include "random_player.h"
 using namespace std;
 
 int main()
@@ -14,11 +14,17 @@ int main()
 	// Initialize Game
     Game game;
 	// Define the 2 players, one AI, the other AI/player	
-    game.AddPlayer(0,10000,1);
-	game.AddPlayer(1,10000,1);
 	
+    //game.AddPlayer(0,10000,1);
+	//game.AddPlayer(1,10000,1);
+	Player* player1 = new RandomPlayer();
+	Player* player2 = new RandomPlayer();
+	game.AddPlayer(0,10000, player1);
+	game.AddPlayer(1,10000, player2);
+	#ifdef DEBUG
+		game.PrintGameState();
+	#endif
     for (int ihand = 0 ; ihand < 10 ; ihand++ ) {  //run 10 hands
-/*To be added*/        // maybe check couple criteria to make sure game can happen
 		game.ResetGameState();
 		game.PostBlinds();
         game.ShuffleAndDeal();

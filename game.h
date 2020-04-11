@@ -22,6 +22,7 @@ public:
 	Game();
 	~Game();
     int AddPlayer(int seat, int stack_size, int type);
+    int AddPlayer(int seat, int stack_size, Player* player);
     void RemovePlayer(int seat);
 
 
@@ -62,7 +63,7 @@ private:
 	//int pot_size_ = 0;
 	//int aggressor_;	 // When someone bets/raises, he opens action. All other ppl needs to call/fold/all-in in order to go to next round.
                          // This counter points to the player who is the aggressor
-	Player players[NUM_OF_PLAYERS] ; //the index is thus player ID 
+	Player *players[NUM_OF_PLAYERS] ; //the index is thus player ID 
 	Deck deck;
     GameState game_state_ ;
 };

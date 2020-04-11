@@ -17,15 +17,15 @@ Game::~Game() {
 }
 
 int Game::AddPlayer(int seat, int stack_size, int type) {
-	if (players[seat].GetStatus() != STATUS_NO_PLAYER) {
+	if (players[seat]->GetStatus() != STATUS_NO_PLAYER) {
 		cerr << "Player already sitting at seat #" << seat << endl;
 		cerr << "AddPlayer() failure" << endl;
 		return -1;
     }	
-	players[seat].SetType(type);
-    players[seat].SetStatus(1); //#define STATUS_IN_GAME		1
-	players[seat].AddToStack(stack_size);
-    players[seat].SetID(seat);
+	players[seat]->SetType(type);
+    players[seat]->SetStatus(1); //#define STATUS_IN_GAME		1
+	players[seat]->AddToStack(stack_size);
+    players[seat]->SetID(seat);
 	
     //Update game_state_
     game_state_.num_player++;
@@ -36,8 +36,18 @@ int Game::AddPlayer(int seat, int stack_size, int type) {
 	return 0;
 }
 
+
+int Game::AddPlayer(int seat, int stack_size, Player* player) {
+    players[seat] = player;
+    game_state_.num_player++;
+    game_state_.stack_size[seat] = stack_size;
+    game_state_.starting_stack_size[seat] = stack_size;
+    game_state_.bankroll[seat] = 10000 * 1000; //1000 buyins
+    game_state_.player_status[seat] = 1; //1=in-game
+}
+
 void Game::RemovePlayer(int seat) {
-	players[seat].SetStatus(STATUS_NO_PLAYER);	
+	players[seat]->SetStatus(STATUS_NO_PLAYER);	
 }
 
 void Game::ShuffleAndDeal() {
@@ -56,8 +66,8 @@ void Game::ShuffleAndDeal() {
         dealt_cards.clear();
 		dealt_cards.push_back(deck.Deal());
 		dealt_cards.push_back(deck.Deal());
-		players[i].SetHoleCards(dealt_cards[0]);
-        players[i].SetHoleCards(dealt_cards[1]);
+		players[i]->SetHoleCards(dealt_cards[0]);
+        players[i]->SetHoleCards(dealt_cards[1]);
 
         #ifdef DEBUG
         std::cout << "[Debug] Hole card of Player Seat" << i << ":";
@@ -70,8 +80,8 @@ void Game::PostBlinds() {
     ComputeBlindPos();
     std::cout << "[INFO] Player " << game_state_.sb_pos << " posts SB:" << game_state_.sb_amount << std::endl;
     std::cout << "[INFO] Player " << game_state_.bb_pos << " posts BB:" << game_state_.bb_amount << std::endl;
-    players[game_state_.sb_pos].Bet(game_state_.sb_amount);
-    players[game_state_.bb_pos].Bet(game_state_.bb_amount);
+//No longer needs    players[game_state_.sb_pos]->Bet(game_state_.sb_amount);
+//No longer needs    players[game_state_.bb_pos]->Bet(game_state_.bb_amount);
     
     //update game state
     game_state_.stack_size[game_state_.sb_pos] -= game_state_.sb_amount;
@@ -92,7 +102,7 @@ ActionWithID Game::AskPlayerToAct(LegalActions legal_actions) {
     #endif
     ActionWithID player_action_with_id;
     player_action_with_id.ID = game_state_.next_player_to_act;
-    player_action_with_id.player_action = players[game_state_.next_player_to_act].Act(game_state_);
+    player_action_with_id.player_action = players[game_state_.next_player_to_act]->Act(game_state_);
 
 	std::cout << "[INFO] Player " << player_action_with_id.ID << " " \
                     << player_action_with_id.player_action << std::endl;
@@ -166,10 +176,10 @@ vector<int> Game::GetWinner(){
         for (int i = 0 ; i < 9 ; i++) {
             if(game_state_.player_status[i] == 1) { //1: in game
                 PokerHand temp;
-                temp.add( players[i].GetHoleCards().at(0) );
-                temp.add( players[i].GetHoleCards().at(1) );
+                temp.add( players[i]->GetHoleCards().at(0) );
+                temp.add( players[i]->GetHoleCards().at(1) );
 
-                std::cout << "Player " << i << " shows " << players[i].GetHoleCards().at(0) << players[i].GetHoleCards().at(1) << std::endl;
+                std::cout << "Player " << i << " shows " << players[i]->GetHoleCards().at(0) << players[i]->GetHoleCards().at(1) << std::endl;
                 temp.add( game_state_.community_cards[0]);
                 temp.add( game_state_.community_cards[1]);
                 temp.add( game_state_.community_cards[2]);
@@ -322,7 +332,7 @@ void Game::UpdateGameState(ActionWithID ac) {
 
 void Game::RemovePlayerCard() {
     for (int i = 0 ; i < game_state_.num_player; i++ )
-        players[i].ResetHoleCards();
+        players[i]->ResetHoleCards();
 }
 
 void Game::CleanCommunityCard() {
