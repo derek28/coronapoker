@@ -62,9 +62,12 @@ int main()
 				break;
 			}
 		}
+		game.PrintGameState();
 		game.CleanCommunityCard();
 		game.RemovePlayerCard();
 		game.MoveBtn();
+
+		
 		std::cin.ignore();
 	}	
 	return 0;

@@ -4,7 +4,7 @@
 
 #include "game.h"
 #include <algorithm> //std::copy for array copying, std::max_element
-#include "misc.h"
+
 
 using namespace std;
 
@@ -353,6 +353,12 @@ void Game::ResetGameState() {
     game_state_.current_street = 0;
     game_state_.pot_size = 0;
     game_state_.num_player_in_hand = game_state_.num_player;
+
+    game_state_.action_history.preflop.clear();
+    game_state_.action_history.flop.clear();
+    game_state_.action_history.turn.clear();
+    game_state_.action_history.river.clear();
+
 }
 
 

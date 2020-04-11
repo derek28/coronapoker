@@ -14,7 +14,7 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
-
+#include "misc.h"
 #define NUM_OF_PLAYERS	2
 
 class Game {

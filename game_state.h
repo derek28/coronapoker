@@ -8,7 +8,7 @@
 #pragma once
 #include "card.h"
 #include <vector>
- 
+#include "misc.h"
  //Variable "action" is passed from Player to Game when player makes a move
  struct Action {
      int action = 0; //fold=0, call=1, bet=2
@@ -32,11 +32,15 @@
     }
  };
 
-
-
 struct ActionWithID {
      int ID = 0;
      Action player_action;
+
+     friend std::ostream& operator<<(std::ostream& os, ActionWithID player_action)
+    {
+        os << "Player " << player_action.ID << " " << player_action.player_action << std::endl;
+        return os;
+    }
 };
  
 struct LegalActions {
@@ -51,6 +55,20 @@ struct ActionHistory {
     std::vector<ActionWithID> flop;
     std::vector<ActionWithID> turn;
     std::vector<ActionWithID> river;
+
+    friend std::ostream& operator<<(std::ostream& os, ActionHistory ac_his)
+    {
+        os << "***PREFLOP***" << std::endl;
+        os << ac_his.preflop;
+        os << "***FLOP***" << std::endl;
+        os << ac_his.flop;
+        os << "***TURN***" << std::endl;
+        os << ac_his.turn;
+        os << "***RIVER***" << std::endl;
+        os << ac_his.river;
+        return os;
+    }
+
 };
 
  struct GameState {
@@ -86,8 +104,23 @@ struct ActionHistory {
      std::vector<Card> player_hole_cards[9];
 
 /*To be added*/ //To add range for each player.
-     
      void print() { //can take parameter and redirect to a file later
+         std::cout << "*************game_state***************" << std::endl;
+         std::cout << "num_player (on the table):" << num_player << std::endl;
+         std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
+         std::cout << "bankroll:";
+         for (int i = 0; i < 9; i++)
+		     std::cout << bankroll[i] << ",";
+         std::cout << std::endl;
+         std::cout << "pot_size:" << pot_size << std::endl;
+         std::cout << "community_cards:" << community_cards << std::endl;
+         std::cout << action_history;
+
+//To be written         //std::cout << ActionHistory ;
+         std::cout << "**************************************" << std::endl;
+     } 
+        
+     void printdebug() { //can take parameter and redirect to a file later
          std::cout << "*************game_state***************" << std::endl;
          std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;

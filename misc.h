@@ -1,3 +1,6 @@
+#pragma once
+#include <vector>
+#include <iostream>
 
 enum StreetName {
     preflop = 0,
@@ -7,7 +10,7 @@ enum StreetName {
     showdown= 4
 };
 
-std::ostream& operator<<(std::ostream& os, const StreetName& street_name)
+inline std::ostream& operator<<(std::ostream& os, const StreetName& street_name)
 {
     switch(street_name)
     {
@@ -22,7 +25,7 @@ std::ostream& operator<<(std::ostream& os, const StreetName& street_name)
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T>& v)
+inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
 {
     for (auto& i: v)
         os << i << " ";
