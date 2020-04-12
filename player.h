@@ -28,7 +28,7 @@ public:
 	Player(int player_type, string name);//default name, stack_size
   	~Player();
 
-	Action Act(GameState);
+	virtual Action Act(GameState, LegalActions);
 	
   	int Bet(int bet_amount);
   	int Call(int call_amount);
@@ -42,6 +42,7 @@ public:
 	void SetStatus(int status);
 	
 	void SetID(int id);
+	int GetID();
 
   	void ResetHoleCards(); //throw away hole card
 	void SetHoleCards(const Card & cards);	

@@ -31,7 +31,7 @@ int Game::AddPlayer(int seat, int stack_size, int type) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.bankroll[seat] = 10000 * 1000; //1000 buyins
+    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
     game_state_.player_status[seat] = 1; //1=in-game
 	return 0;
 }
@@ -42,7 +42,7 @@ int Game::AddPlayer(int seat, int stack_size, Player* player) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.bankroll[seat] = 10000 * 1000; //1000 buyins
+    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
     game_state_.player_status[seat] = 1; //1=in-game
     players[seat]->SetID(seat);
 }
@@ -85,6 +85,7 @@ void Game::PostBlinds() {
 //No longer needs    players[game_state_.bb_pos]->Bet(game_state_.bb_amount);
     
     //update game state
+    game_state_.total_pot_size += (game_state_.sb_amount + game_state_.bb_amount);
     game_state_.stack_size[game_state_.sb_pos] -= game_state_.sb_amount;
     game_state_.stack_size[game_state_.bb_pos] -= game_state_.bb_amount;
     game_state_.bet_ring[game_state_.sb_pos] = game_state_.sb_amount;
@@ -103,7 +104,7 @@ ActionWithID Game::AskPlayerToAct(LegalActions legal_actions) {
     #endif
     ActionWithID player_action_with_id;
     player_action_with_id.ID = game_state_.next_player_to_act;
-    player_action_with_id.player_action = players[game_state_.next_player_to_act]->Act(game_state_);
+    player_action_with_id.player_action = players[game_state_.next_player_to_act]->Act(game_state_, legal_actions);
 
 	std::cout << "[INFO] Player " << player_action_with_id.ID << " " \
                     << player_action_with_id.player_action << std::endl;
@@ -114,10 +115,13 @@ void Game::PrintGameState() {
     game_state_.print();
 }
 
+void Game::PrintGameStateDebug() {
+    game_state_.printdebug();
+}
+
 void Game::ComputeBlindPos() {
     if (game_state_.num_player < 2)
         std:cerr << "Player number is incorrect:" << game_state_.num_player << std::endl;
-    
 
     game_state_.sb_pos = FindNextPlayer(game_state_.btn_pos);
     game_state_.bb_pos = FindNextPlayer(game_state_.sb_pos);
@@ -129,7 +133,7 @@ void Game::ComputeBlindPos() {
 
 int Game::FindNextPlayer(int i) {
     i++;
-    while ( game_state_.player_status[i%9] != 1 || IsPlayerAllIn(i) ) {
+    while ( game_state_.player_status[i%9] != 1 /*|| IsPlayerAllIn(i) */ ) {
         i++;
     }
     return i%9;
@@ -217,6 +221,14 @@ void Game::PayWinner(vector<int> winners){
         game_state_.stack_size[i] += game_state_.pot_size/winners.size();
     }
 
+
+    // Compute bankroll, always rebuy/adjust to 100BB
+    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
+        double temp = (double) ( game_state_.stack_size[iplayer] - game_state_.starting_stack_size[iplayer] ) / ( 100 * game_state_.bb_amount) ;
+        game_state_.nb_of_buyins[iplayer] += temp;
+    }
+
+
 }
 
 bool Game::IsEndOfStreet() {
@@ -295,12 +307,14 @@ void Game::UpdateGameState(ActionWithID ac) {
         case 1:
             game_state_.stack_size[ac.ID] -= ac.player_action.amount;
             game_state_.bet_ring[ac.ID] += ac.player_action.amount;
+            game_state_.total_pot_size += ac.player_action.amount;
             break;
         case 2:
             game_state_.aggressor = ac.ID;
             game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
             game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
             game_state_.bet_ring[ac.ID] = ac.player_action.amount;
+            game_state_.total_pot_size += ac.player_action.amount;
             break;
         default:
             std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
@@ -343,15 +357,17 @@ void Game::CleanCommunityCard() {
 void Game::ResetGameState() {
     //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
 
-    // Compute bankroll, always rebuy/adjust to 100BB
-    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ )
-        game_state_.bankroll[iplayer] += game_state_.stack_size[iplayer] - game_state_.starting_stack_size[iplayer];
-    
+    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
+        if (game_state_.nb_of_buyins[iplayer] > 0)
+            game_state_.player_status[iplayer] = 1;
+    }
+
     // Always reset stacksize
     std::copy(game_state_.starting_stack_size, game_state_.starting_stack_size+9, game_state_.stack_size); 
 
     game_state_.current_street = 0;
     game_state_.pot_size = 0;
+    game_state_.total_pot_size = 0;
     game_state_.num_player_in_hand = game_state_.num_player;
 
     game_state_.action_history.preflop.clear();

@@ -25,7 +25,9 @@
                 else
                     os << "calls " << action.amount; 
                 break;
-            case 2         : os << "raises " << action.amount; break;
+            case 2         : 
+                os << "raises " << action.amount; 
+                break;
             default        : os << "[ERROR] Unknown Action" ;
         }
         return os;
@@ -87,6 +89,7 @@ struct ActionHistory {
      //Info below are updated per betting street during the game
      std::vector<Card> community_cards;
      int pot_size = 0;
+     int total_pot_size = 0;
      //Info below are updated per action during game
      int current_street = 0; //0=preflop, 1=flop, 2=turn 3=river, 4=showdown
      int num_player_in_hand = 0;
@@ -97,7 +100,7 @@ struct ActionHistory {
      int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
      int allin_state[9] = {};
      int raise_amount = 0; // raise size - previous raise size
-     int bankroll[9] = {};
+     double nb_of_buyins[9] = {};
      ActionHistory action_history;
      
      //Info below are updated at the end of the game
@@ -108,9 +111,9 @@ struct ActionHistory {
          std::cout << "*************game_state***************" << std::endl;
          std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
-         std::cout << "bankroll:";
+         std::cout << "nb_of_buyins:";
          for (int i = 0; i < 9; i++)
-		     std::cout << bankroll[i] << ",";
+		     std::cout << nb_of_buyins[i] << ",";
          std::cout << std::endl;
          std::cout << "pot_size:" << pot_size << std::endl;
          std::cout << "community_cards:" << community_cards << std::endl;
@@ -124,12 +127,16 @@ struct ActionHistory {
          std::cout << "*************game_state***************" << std::endl;
          std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
-         std::cout << "bankroll:";
+         std::cout << "nb_of_buyins:";
          for (int i = 0; i < 9; i++)
-		     std::cout << bankroll[i] << ",";
+		     std::cout << nb_of_buyins[i] << ",";
          std::cout << std::endl;
          std::cout << "*********" << std::endl;
          std::cout << "Number of players in hand: " << num_player_in_hand << std::endl;
+         std::cout << "Starting stack sizes: " ;
+         for (int i=0; i < 9; i++)
+            std::cout << starting_stack_size[i] << "," ;
+         std::cout << std::endl;         
          std::cout << "Stack sizes: ";
          for (int i=0; i < 9; i++)
             std::cout << stack_size[i] << "," ;

@@ -13,18 +13,21 @@ int main()
 	std::srand((unsigned) time(0));
 	// Initialize Game
     Game game;
+
+
+	//Setup game here
 	// Define the 2 players, one AI, the other AI/player	
-	
-    //game.AddPlayer(0,10000,1);
-	//game.AddPlayer(1,10000,1);
 	Player* player1 = new RandomPlayer();
 	Player* player2 = new RandomPlayer();
 	game.AddPlayer(0,10000, player1);
 	game.AddPlayer(1,10000, player2);
+	int number_of_hands = 10000;
+
+
 	#ifdef DEBUG
 		game.PrintGameState();
 	#endif
-    for (int ihand = 0 ; ihand < 10 ; ihand++ ) {  //run 10 hands
+    for (int ihand = 0 ; ihand < number_of_hands ; ihand++ ) {  //run 1000 hands
 		game.ResetGameState();
 		game.PostBlinds();
         game.ShuffleAndDeal();
@@ -38,7 +41,7 @@ int main()
 			ac = game.VerifyAction(ac, legal_ac);
 			game.UpdateGameState(ac);
 			#ifdef DEBUG
-			game.PrintGameState();
+				game.PrintGameStateDebug();
 			#endif
 			//Check if there is only 1 player left
 			if (game.IsPotUncontested() ){
@@ -68,7 +71,7 @@ int main()
 		game.MoveBtn();
 
 		
-		std::cin.ignore();
+		//std::cin.ignore();
 	}	
 	return 0;
 }

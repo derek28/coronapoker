@@ -35,7 +35,7 @@ Player::Player(int player_type, string name) {
 Player::~Player() {}
 
 
-Action Player::Act(GameState game_state){
+Action Player::Act(GameState game_state, LegalActions legal_actions){
     Action action_to_return;
 
 //  Always fold
@@ -44,27 +44,7 @@ Action Player::Act(GameState game_state){
 
 //  Always call
 //	action_to_return.action = 1 ; //1 = call
-//	action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-//									- game_state.bet_ring[player_id_] ;
-
-//  80% call 15% raise 5% big-raise
-	int rand_num = rand() % 100;
-	if ( rand_num < 80) {
-		action_to_return.action = 1 ; //1 = call
-		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										- game_state.bet_ring[player_id_] ;	
-	} 
-	else if (rand_num < 95) {
-		action_to_return.action = 2 ; //2 = raise
-		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										+ game_state.raise_amount;
-	} 
-	else {
-		action_to_return.action = 2 ;
-		action_to_return.amount = 5 * ( *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										+ game_state.raise_amount );
-	}
-
+//	action_to_return.amount = legal_actions.LegalCall.amount;
 
 	return action_to_return;
 }
@@ -142,6 +122,11 @@ void Player::SetHoleCards(const Card & cards) {
 vector<Card> Player::GetHoleCards() {
 	return hole_cards;
 }
+
 void Player::SetID(int id) {
 	player_id_ = id;
+}
+
+int Player::GetID() {
+	return player_id_;
 }

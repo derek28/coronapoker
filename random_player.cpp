@@ -5,30 +5,67 @@
  * Description: Blabla
  ***************************************************/
 
+#include "random_player.h"
 
-
-#pragma once
-
-#include "player.h"
-
-Action RandomPlayer::Act(GameState game_state) {
+Action RandomPlayer::Act(GameState game_state, LegalActions legal_actions) {
     Action action_to_return;
+
 	int rand_num = rand() % 100;
-	if ( rand_num < 80) {
-		action_to_return.action = 1 ; //1 = call
-		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										- game_state.bet_ring[player_id_] ;	
+	
+	int action = 0; // 0 fold 1 check/call 2 min-raise 3 1/2 pot raise/bet
+
+	//20% fold/check  
+	//60% check/call  
+	//15% min-raise (if possible, otherwise call) 
+	//5% bigger raise (if possible, otherwise call)
+	if ( rand_num < 20) {
+		action = 0;
+		if (legal_actions.LegalCall.amount == 0) //if call is free, then call
+			action = 1;
+	}
+	else if (rand_num < 80) {
+		action = 1;
 	} 
 	else if (rand_num < 95) {
-		action_to_return.action = 2 ; //2 = raise
-		action_to_return.amount = *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										+ game_state.raise_amount;
+		action = 2;
+		if (legal_actions.LegalMinRaise.amount == -1)
+			action = 1;
 	} 
 	else {
-		action_to_return.action = 2 ;
-		action_to_return.amount = 5 * ( *std::max_element(game_state.bet_ring,game_state.bet_ring+9) \
-										+ game_state.raise_amount );
+		action = 3;
+		if (legal_actions.LegalMinRaise.amount == -1)
+			action = 1;
 	}
+
+	switch (action)
+	{
+	case 0:
+		action_to_return.action = 0;
+		action_to_return.amount = 0;
+		break;
+
+	case 1:
+		action_to_return.action = 1;
+		action_to_return.amount = legal_actions.LegalCall.amount;
+		break;
+
+	case 2:
+		action_to_return.action = 2;
+		action_to_return.amount = legal_actions.LegalMinRaise.amount;
+		break;
+
+	case 3:
+		action_to_return.action = 2;
+		action_to_return.amount = std::min( game_state.stack_size[GetID()], \
+							legal_actions.LegalCall.amount + game_state.bet_ring[GetID()] \
+							+(game_state.total_pot_size + legal_actions.LegalCall.amount)/2 );
+		break;
+
+	default:
+		break;
+	}
+
+
 
 
 	return action_to_return;

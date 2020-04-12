@@ -54,6 +54,7 @@ public:
     void UpdateGameState(ActionWithID ac);
     void ResetGameState();
     void PrintGameState();  //may consider add a parameter to redirect output, append mode
+    void PrintGameStateDebug();
 private:
     //int big_blind_ = 100;
     //int small_blind_ = 50;

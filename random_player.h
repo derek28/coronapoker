@@ -14,5 +14,5 @@
 class RandomPlayer: public Player 
 {
     public: 
-    	Action Act(GameState);
+    	Action Act(GameState, LegalActions);
 };
