@@ -6,6 +6,7 @@
 #include"card.h"
 #include"deck.h"
 #include"strength.h"
+#include"human_player.h"
 
 using namespace std;
 
@@ -13,10 +14,28 @@ void testPokerhandComparison();
 
 void testHandStrength(); 
 
+void testHumanPlayer();
+
 int main(){
     std::srand(std::time(0));
-    testHandStrength();
+	testHumanPlayer();
     return 0;
+}
+
+void testHumanPlayer() {
+	HumanPlayer bill;
+	Action act;
+	GameState state;
+	act = bill.Act(state);
+	if (act.action == 0) {
+		cout << "You folded." << endl;
+	} else if (act.action == 1) {
+		cout << "You call/checked." << endl;
+	} else if (act.action == 2) {
+		cout << "You raised " << act.amount << endl;
+	} else { 
+		cout << "ERROR! act.action = " << act.action << endl;
+	}
 }
 
 void testHandStrength() {
