@@ -8,5 +8,5 @@
 class HumanPlayer : public Player
 {
 public:	
-	Action Act(GameState);	
+	Action Act(GameState, LegalActions);	
 };

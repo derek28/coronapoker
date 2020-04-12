@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "misc.h"
 
 using namespace std;
 
@@ -39,15 +40,21 @@ vector <string> split(string str, char delim) {
 	return splitStrings;
 }
 
-Action HumanPlayer::Act(GameState game_state) {
+Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	Action action_to_return;
 	string buff;
 	vector <string> splitStrings;
 	int count;
 	unsigned amount;
 	
+	std::cout << "Your hole card is:" << GetHoleCards() << std::endl;
+	std::cout << "You are seat " << GetID() << std::endl;
+	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount;
+	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
+	std::cout << std::endl;
+	
 	while (1) {
-		cout << "Please enter command: f(fold), c(check), r <NUM> (raise <amount>)" 
+		cout << "Please enter command: f(fold), c(check/call), r <NUM> (raise <amount>)" 
 				<< endl;
 		getline(cin, buff);
 		count = 0;
@@ -75,6 +82,7 @@ Action HumanPlayer::Act(GameState game_state) {
 			}
 			if (splitStrings[0] == "c") {
 				action_to_return.action = 1;
+				action_to_return.amount = legal_actions.LegalCall.amount;
 				return action_to_return;
 			}
 			cout << "Invalid input!" << endl;

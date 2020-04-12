@@ -1,0 +1,1 @@
+Currently, 1/2 pot raise calculation is only correct for headsup game. Need to correct it later.

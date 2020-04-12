@@ -26,7 +26,8 @@ void testHumanPlayer() {
 	HumanPlayer bill;
 	Action act;
 	GameState state;
-	act = bill.Act(state);
+	LegalActions legal_actions;
+	act = bill.Act(state, legal_actions);
 	if (act.action == 0) {
 		cout << "You folded." << endl;
 	} else if (act.action == 1) {

@@ -5,15 +5,20 @@ DEPS = card.h deck.h pokerhand.h player.h game.h strength.h human_player.h rando
 OBJ     = main.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o
 OBJTEST = test.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o
 
+OBJHUMANVSBOT = humanvsbot.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o
 
-all: poker test
+
+all: poker test humanvsbot
 
 poker: $(OBJ) 
 	$(CC) $(CFLAGS) -o poker $(OBJ)     
 
 test: $(OBJTEST)
 	$(CC) $(CFLAGS) -o test $(OBJTEST)
-    
+
+humanvsbot: $(OBJHUMANVSBOT)
+	$(CC) $(CFLAGS) -o humanvsbot $(OBJHUMANVSBOT)
+
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 

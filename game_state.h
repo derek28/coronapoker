@@ -109,9 +109,9 @@ struct ActionHistory {
 /*To be added*/ //To add range for each player.
      void print() { //can take parameter and redirect to a file later
          std::cout << "*************game_state***************" << std::endl;
-         std::cout << "num_player (on the table):" << num_player << std::endl;
+         //std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
-         std::cout << "nb_of_buyins:";
+         std::cout << "nb_of_buyins_at_the_end_of_game:";
          for (int i = 0; i < 9; i++)
 		     std::cout << nb_of_buyins[i] << ",";
          std::cout << std::endl;
