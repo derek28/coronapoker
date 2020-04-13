@@ -326,7 +326,7 @@ void Game::UpdateGameState(ActionWithID ac) {
             game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
             game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
             game_state_.bet_ring[ac.ID] = ac.player_action.amount;
-            game_state_.total_pot_size += ac.player_action.amount;
+            game_state_.total_pot_size += (ac.player_action.amount - game_state_.bet_ring[ac.ID] );
             break;
         default:
             std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
