@@ -18,7 +18,7 @@ void testHumanPlayer();
 
 int main(){
     std::srand(std::time(0));
-	testHumanPlayer();
+	testHandStrength();
     return 0;
 }
 
@@ -40,28 +40,31 @@ void testHumanPlayer() {
 }
 
 void testHandStrength() {
-	int num_of_cards = 3;
-	Card hd[2];
-	Card op[2];
-	Card com[5];
-	op[0] = Card(9, CLUB);
-	op[1] = Card(9, DIAMOND);
-	hd[0] = Card(2, CLUB);
-	hd[1] = Card(2, HEART);
-	com[0] = Card(7, SPADE);
-	com[1] = Card(8, SPADE);
-	com[2] = Card(2, DIAMOND);	
-	com[3] = Card(13, DIAMOND);
-	com[4] = Card(1, DIAMOND);
-	cout << "My hand: " << hd[0] << " " << hd[1] << endl;
+	vector <Card> my_hand;
+	vector <Card> opp_hand;
+	vector <Card> board;
+
+	opp_hand.push_back(Card(9, CLUB));
+	opp_hand.push_back(Card(9, DIAMOND));
+
+	my_hand.push_back(Card(2, CLUB));
+	my_hand.push_back(Card(2, HEART));
+
+	board.push_back(Card(7, SPADE));
+	board.push_back(Card(8, HEART));
+	board.push_back(Card(2, SPADE));
+	//board.push_back(Card(13, HEART));
+	//board.push_back(Card(1, DIAMOND));
+
+	cout << "My hand: " << my_hand[0] << " " << my_hand[1] << endl;
 	cout << "Community cards: ";
-	for (int i = 0; i < num_of_cards; i++) {
-		cout << com[i] << " ";
+	for (int i = 0; i < board.size(); i++) {
+		cout << board[i] << " ";
 	}
 	cout << endl;
-	float IHS = GetHandStrength(hd, com, num_of_cards, NULL);
+	float IHS = GetImmediateStrength(my_hand, board, NULL);
 	cout << "Immediate hand strength = " << IHS << endl;
-	float EHS = GetEffectiveStrength(hd, com, num_of_cards, NULL);
+	float EHS = GetEffectiveStrength(my_hand, board, NULL);
 	cout << "Effective hand strength = " << EHS << endl;
 //	float equity = GetHandEquity(hd, op, com, num_of_cards);
 //	cout << "Hand equity against " << op[0] << " " << op[1] << " is " 

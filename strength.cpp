@@ -17,7 +17,7 @@
  * output: 
  *	immediate hand rank (IHR), IHR = (wins + (ties/2))/(wins + ties + losses)
  */
-float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
+float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **range) {
 	/*********************************************************
 	 *    As 2s 3s ... Ah 2h ... Ac 2c ... Ad 2d .. Kd
 	 * As 0  1  1  ... 1  1  ... 1  1  ... 1  1  .. 1
@@ -31,14 +31,12 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
 	float combos[52][52];
 	int i, j;
 	float wins = 0.0, ties = 0.0, loses = 0.0;
+	int num_of_cards = board.size();
 
-/*	cout << "Input Information:" << endl;
-	cout << "My Hand: " << ph[0] << " " << ph[1] << endl;
-	cout << "Board: ";
-	for (i = 0; i < nComCards; i++) {
-		cout << com[i] << " ";
+	if (hand.size() != 2) {
+		cerr << "Hand size must be 2!" << endl;
+		return -1;
 	}
-	cout << endl;*/
 
 	if (range != NULL) {
 		// copy from range[52][52], do not modify range[][]
@@ -60,15 +58,16 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
 	}
 
 	// combo removal given input hands
-	int *index = new int[2 + nComCards];	
-	index[0] = ph[0].GetRank() - 1 + (ph[0].GetSuit() - 1) * 13;
-	index[1] = ph[1].GetRank() - 1 + (ph[1].GetSuit() - 1) * 13;
+	vector <int> index;
+	index.resize(2 + num_of_cards);
+	index[0] = hand[0].GetRank() - 1 + (hand[0].GetSuit() - 1) * 13;
+	index[1] = hand[1].GetRank() - 1 + (hand[1].GetSuit() - 1) * 13;
 
-	for (i = 0; i < nComCards; i++) {
-		index[i + 2] = com[i].GetRank() - 1 + (com[i].GetSuit() - 1) * 13;
+	for (i = 0; i < num_of_cards; i++) {
+		index[i + 2] = board[i].GetRank() - 1 + (board[i].GetSuit() - 1) * 13;
 	}
 
-	for (i = 0; i < nComCards + 2; i++) {
+	for (i = 0; i < num_of_cards + 2; i++) {
 		for (j = 0; j < 52; j++) {
 			combos[index[i]][j] = 0.0;
 			combos[j][index[i]] = 0.0;
@@ -93,11 +92,11 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
 	PokerHand poker1;
 	PokerHand poker2; 
 	
-	poker1.add(ph[0]);
-	poker1.add(ph[1]);
-	for (i = 0; i < nComCards; i++) {
-		poker1.add(com[i]);
-		poker2.add(com[i]);
+	poker1.add(hand[0]);
+	poker1.add(hand[1]);
+	for (i = 0; i < num_of_cards; i++) {
+		poker1.add(board[i]);
+		poker2.add(board[i]);
 	}
 
 	//poker1.print();
@@ -139,25 +138,27 @@ float GetHandStrength(Card *ph, Card *com, int nComCards, float **range) {
  * @com: community cards, type Card*
  * #nComCards: # of community cards, int
  */
-float GetHandEquity(Card *a, Card *b, Card *com, int nComCards) {
+float GetHandEquity(vector <Card> a, vector <Card> b, vector <Card> board) {
 	float eq1, eq2;
 	float wins = 0.0;	
 	float ties = 0.0;
 	float loses = 0.0;
 	int count = 0;				// total count
 	
+	int num_of_cards = board.size();
+
 	Deck deck;
 	deck.RemoveCard(a[0]);
 	deck.RemoveCard(a[1]);
 	deck.RemoveCard(b[0]);
 	deck.RemoveCard(b[1]);
 
-	if (nComCards < 0 || nComCards > 4) {
+	if (num_of_cards < 0 || num_of_cards > 4) {
 		cerr << "GetHandEquity(): Invalid input." << endl;
 	}
 
-	for (int i = 0; i < nComCards; i++) {
-		deck.RemoveCard(com[i]);
+	for (int i = 0; i < num_of_cards; i++) {
+		deck.RemoveCard(board[i]);
 	}
 
 	PokerHand ph1, ph2;
@@ -167,9 +168,9 @@ float GetHandEquity(Card *a, Card *b, Card *com, int nComCards) {
 	ph2.add(b[0]);
 	ph2.add(b[1]);
 
-	for (int i = 0; i < nComCards; i++) {
-		ph1.add(com[i]);
-		ph2.add(com[i]);
+	for (int i = 0; i < num_of_cards; i++) {
+		ph1.add(board[i]);
+		ph2.add(board[i]);
 	}
 
 //	deck.print();
@@ -180,7 +181,7 @@ float GetHandEquity(Card *a, Card *b, Card *com, int nComCards) {
 
 		dk.Shuffle();
 		// deal the common cards to river
-		for (int j = nComCards; j < 5; j++) {
+		for (int j = num_of_cards; j < 5; j++) {
 			Card temp = dk.Deal();
 			ph1_sim.add(temp);
 			ph2_sim.add(temp);
@@ -205,31 +206,33 @@ float GetHandEquity(Card *a, Card *b, Card *com, int nComCards) {
 	return ((wins + ties / 2) / (float)count);
 }
 
-float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range) {	
+float GetEffectiveStrength(vector <Card> hand, vector <Card> board, float **range) {	
 	int i, j;
 	float strength = 0.0;
-	int cards_to_deal = 5 - nComCards;
-	Card all_cards[5];
+	vector <Card> all_cards;
 	Deck deck;
+	int num_of_cards = board.size();
+	int cards_to_deal = 5 - num_of_cards;
+	all_cards.resize(5);
 
 	// remove the dead cards
-	deck.RemoveCard(ph[0]);
-	deck.RemoveCard(ph[1]);
-	for (i = 0; i < nComCards; i++) {
-		deck.RemoveCard(com[i]);
-		all_cards[i] = com[i];
+	deck.RemoveCard(hand[0]);
+	deck.RemoveCard(hand[1]);
+	for (i = 0; i < num_of_cards; i++) {
+		deck.RemoveCard(board[i]);
+		all_cards[i] = board[i];
 	}
 
 	// enumerate the remaining community cards 	
 	if (cards_to_deal == 0) {
-		return GetHandStrength(ph, all_cards, 5, range);
+		return GetImmediateStrength(hand, all_cards, range);
 	}
 	if (cards_to_deal == 1) {
 		// deal the river card
 		for (i = 0; i < 46; i++) {	// 52 - 2 - 4 = 46 , total - player's cards - com cards
 			all_cards[4] = deck.Deal();
 		//	cout << all_cards[4] << " ";
-			float t = GetHandStrength(ph, all_cards, 5, range);
+			float t = GetImmediateStrength(hand, all_cards, range);
 			strength += t;
 		//	cout << t << endl;
 		}
@@ -246,7 +249,7 @@ float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range) {
 				// deal river card
 				all_cards[4] = deck_river.Deal();
 			//cout << "j:" << j << " " << all_cards[4] << endl;
-				strength += GetHandStrength(ph, all_cards, 5, range);
+				strength += GetImmediateStrength(hand, all_cards, range);
 			}
 		}
 		return strength / (47 * 46 * 0.5);

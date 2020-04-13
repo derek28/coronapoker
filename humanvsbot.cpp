@@ -6,6 +6,8 @@
 #include "game_state.h"
 #include "random_player.h"
 #include "human_player.h"
+#include "ehs_player.h"
+
 using namespace std;
 
 int main()
@@ -19,7 +21,7 @@ int main()
 	//Setup game here
 	// Define the 2 players.	
 	Player* player1 = new HumanPlayer();
-	Player* player2 = new RandomPlayer();
+	Player* player2 = new EhsPlayer();
 	game.AddPlayer(0,10000, player1);
 	game.AddPlayer(1,10000, player2);
 	int number_of_hands = 10;

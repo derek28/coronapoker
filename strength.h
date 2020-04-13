@@ -6,12 +6,13 @@
 
 #include "card.h"
 #include "pokerhand.h"
+#include <vector>
 
-float GetHandStrength(Card *ph, Card *com, int nComCards, float **range);
+float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **range);
 
-float GetEffectiveStrength(Card *ph, Card *com, int nComCards, float **range);
+float GetEffectiveStrength(vector <Card> hand, vector <Card> board, float **range);
 
-float GetHandEquity(Card *a, Card *b, Card *com, int nComCards);
+float GetHandEquity(vector <Card> a, vector <Card> b, vector <Card> board);
 
 
 
