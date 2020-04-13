@@ -79,6 +79,8 @@ void Game::ShuffleAndDeal() {
 
 void Game::PostBlinds() {
     ComputeBlindPos();
+    std::cout << "************************************************************" << std::endl;
+    std::cout << "[INFO] Hand# " << game_state_.hand_number << std::endl;
     std::cout << "[INFO] Player " << game_state_.sb_pos << " posts SB:" << game_state_.sb_amount << std::endl;
     std::cout << "[INFO] Player " << game_state_.bb_pos << " posts BB:" << game_state_.bb_amount << std::endl;
 //No longer needs    players[game_state_.sb_pos]->Bet(game_state_.sb_amount);
@@ -361,16 +363,10 @@ void Game::CleanCommunityCard() {
 }
 
 void Game::ResetGameState() {
-    //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
 
-    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
-        if (game_state_.nb_of_buyins[iplayer] > 0)
-            game_state_.player_status[iplayer] = 1;
-    }
-
-    // Always reset stacksize
-    std::copy(game_state_.starting_stack_size, game_state_.starting_stack_size+9, game_state_.stack_size); 
-
+	CleanCommunityCard();
+	RemovePlayerCard();
+    game_state_.hand_number++;
     game_state_.current_street = 0;
     game_state_.pot_size = 0;
     game_state_.total_pot_size = 0;
@@ -380,7 +376,14 @@ void Game::ResetGameState() {
     game_state_.action_history.flop.clear();
     game_state_.action_history.turn.clear();
     game_state_.action_history.river.clear();
-
+    //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
+        
+    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
+        if (game_state_.nb_of_buyins[iplayer] > 0)
+            game_state_.player_status[iplayer] = 1;
+    }
+    // Always reset stacksize
+    std::copy(game_state_.starting_stack_size, game_state_.starting_stack_size+9, game_state_.stack_size); 
 }
 
 

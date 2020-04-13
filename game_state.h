@@ -107,8 +107,10 @@ struct ActionHistory {
      std::vector<Card> player_hole_cards[9];
 
 /*To be added*/ //To add range for each player.
+
      void print() { //can take parameter and redirect to a file later
-         std::cout << "*************game_state***************" << std::endl;
+         std::cout << "**************************************" << std::endl;
+         std::cout << "Hand#" << hand_number << std::endl;
          //std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
          std::cout << "nb_of_buyins_at_the_end_of_game:";
@@ -118,8 +120,6 @@ struct ActionHistory {
          std::cout << "pot_size:" << pot_size << std::endl;
          std::cout << "community_cards:" << community_cards << std::endl;
          std::cout << action_history;
-
-//To be written         //std::cout << ActionHistory ;
          std::cout << "**************************************" << std::endl;
      } 
         

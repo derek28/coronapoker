@@ -65,12 +65,7 @@ int main()
 			}
 		}
 		//game.PrintGameState();
-		game.CleanCommunityCard();
-		game.RemovePlayerCard();
 		game.MoveBtn();
-
-		
-		//std::cin.ignore();
 	}
 
 	clock_t end = clock();
