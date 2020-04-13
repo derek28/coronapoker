@@ -40,6 +40,7 @@ public:
     bool IsPotUncontested();
     bool IsPlayerAllIn(int i);
     bool HasReachShowdown();
+    bool HasNoMoreActions();
     bool IsEndOfStreet(); 						//check if this betting round is done. maybe this function is not necessary;
     void CollectMoneyFromBetRing();             //Collect money from bet ring and put into middle
     bool IsBetInvalid(); //if betsize is invalid (too small), throw warning, make player fold

@@ -12,7 +12,7 @@ int main()
 {
 	cout << "Hello, Corona!" << endl;
 	std::srand((unsigned) time(0));
-	// Initialize Game
+	// Instantiate Game
     Game game;
 
 
@@ -28,14 +28,12 @@ int main()
 	#ifdef DEBUG
 		game.PrintGameState();
 	#endif
-    for (int ihand = 0 ; ihand < number_of_hands ; ihand++ ) {  //run 1000 hands
+     for (int ihand = 0 ; ihand < number_of_hands ; ihand++ ) {
 		game.ResetGameState();
 		game.PostBlinds();
         game.ShuffleAndDeal();
         
 		while (1) { //it breaks when a hand finishes
-			//Find next player to act
-
 			//Ask player (pointed by nextplayertoact) to act
 			LegalActions legal_ac = game.GetAllLegalActions();
 			ActionWithID ac = game.AskPlayerToAct(legal_ac);
@@ -66,7 +64,7 @@ int main()
 				break;
 			}
 		}
-		game.PrintGameState();
+		//game.PrintGameState();
 		game.CleanCommunityCard();
 		game.RemovePlayerCard();
 		game.MoveBtn();

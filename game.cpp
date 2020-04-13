@@ -228,7 +228,6 @@ void Game::PayWinner(vector<int> winners){
         game_state_.nb_of_buyins[iplayer] += temp;
     }
 
-
 }
 
 bool Game::IsEndOfStreet() {
@@ -294,6 +293,13 @@ void Game::SetupNextStreet() {
         game_state_.next_player_to_act = FindNextPlayer(game_state_.bb_pos);
     game_state_.aggressor = FindNextPlayer(game_state_.btn_pos); 
     game_state_.raise_amount = game_state_.bb_amount;
+
+
+    //check if all players are all in, if yes, then deal all remaining streets
+    if (game_state_.current_street != 4 ) {
+        if (HasNoMoreActions())
+            SetupNextStreet();
+    }
 }
 
 
@@ -427,16 +433,29 @@ LegalActions Game::GetAllLegalActions() {
     legal_actions.LegalMaxRaise.action = 2;
     legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;
 
-    if ( biggest_bet_amount > game_state_.stack_size[game_state_.next_player_to_act] ) {
+    if ( biggest_bet_amount >= game_state_.stack_size[game_state_.next_player_to_act] 
+                                + game_state_.bet_ring[game_state_.next_player_to_act] ) {
         legal_actions.LegalMinRaise.amount = -1 ;
         legal_actions.LegalMaxRaise.amount = -1 ;
     }
         
     if ( legal_actions.LegalMinRaise.amount > legal_actions.LegalMaxRaise.amount ) {
         legal_actions.LegalMinRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;
-        legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;        
+        legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;      
     }
 
     return legal_actions;
 }
 
+
+bool Game::HasNoMoreActions() {
+    int actionable_player= game_state_.num_player_in_hand;
+    for (int i = 0 ; i < 9 ; i++ ) {
+        if (IsPlayerAllIn(i) )
+            actionable_player--;
+    }
+    if ( actionable_player >=0 && actionable_player < 2)
+        return 1;
+    else
+        return 0;
+}

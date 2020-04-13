@@ -49,10 +49,10 @@ Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	
 	std::cout << "Your hole card is:" << GetHoleCards() << std::endl;
 	std::cout << "You are seat " << GetID() << std::endl;
-	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount;
+	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount << " ";
 	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
 	std::cout << std::endl;
-	
+
 	while (1) {
 		cout << "Please enter command: f(fold), c(check/call), r <NUM> (raise <amount>)" 
 				<< endl;

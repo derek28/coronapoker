@@ -85,13 +85,13 @@ struct ActionHistory {
      int bb_pos = 0;
      int sb_amount = 50;
      int bb_amount = 100;
-
+     int hand_number = 0;
      //Info below are updated per betting street during the game
      std::vector<Card> community_cards;
      int pot_size = 0;
      int total_pot_size = 0;
      //Info below are updated per action during game
-     int current_street = 0; //0=preflop, 1=flop, 2=turn 3=river, 4=showdown
+     int current_street = 0; //0=preflop, 1=flop, 2=turn 3=river, 4=showdown, 5=finished
      int num_player_in_hand = 0;
      int stack_size[9] = {};
      int next_player_to_act = 0;
