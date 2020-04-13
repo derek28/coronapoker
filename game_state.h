@@ -86,6 +86,7 @@ struct ActionHistory {
      int sb_amount = 50;
      int bb_amount = 100;
      int hand_number = 0;
+     double nb_of_buyins[9] = {};
      //Info below are updated per betting street during the game
      std::vector<Card> community_cards;
      int pot_size = 0;
@@ -100,15 +101,16 @@ struct ActionHistory {
      int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
      int allin_state[9] = {};
      int raise_amount = 0; // raise size - previous raise size
-     double nb_of_buyins[9] = {};
      ActionHistory action_history;
      
      //Info below are updated at the end of the game
      std::vector<Card> player_hole_cards[9];
 
 /*To be added*/ //To add range for each player.
+
      void print() { //can take parameter and redirect to a file later
-         std::cout << "*************game_state***************" << std::endl;
+         std::cout << "**************************************" << std::endl;
+         std::cout << "Hand#" << hand_number << std::endl;
          //std::cout << "num_player (on the table):" << num_player << std::endl;
          std::cout << "btn_pos:" << btn_pos << ",sb_pos:" << sb_pos << ",bb_pos:" << bb_pos << std::endl;
          std::cout << "nb_of_buyins_at_the_end_of_game:";
@@ -118,8 +120,6 @@ struct ActionHistory {
          std::cout << "pot_size:" << pot_size << std::endl;
          std::cout << "community_cards:" << community_cards << std::endl;
          std::cout << action_history;
-
-//To be written         //std::cout << ActionHistory ;
          std::cout << "**************************************" << std::endl;
      } 
         

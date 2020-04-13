@@ -31,7 +31,7 @@ int Game::AddPlayer(int seat, int stack_size, int type) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
+    game_state_.nb_of_buyins[seat] = 0;
     game_state_.player_status[seat] = 1; //1=in-game
 	return 0;
 }
@@ -42,9 +42,11 @@ int Game::AddPlayer(int seat, int stack_size, Player* player) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
+    game_state_.nb_of_buyins[seat] = 0;
     game_state_.player_status[seat] = 1; //1=in-game
     players[seat]->SetID(seat);
+
+    players[seat]->SetStatus(1); //#define STATUS_IN_GAME		1
 }
 
 void Game::RemovePlayer(int seat) {
@@ -79,6 +81,8 @@ void Game::ShuffleAndDeal() {
 
 void Game::PostBlinds() {
     ComputeBlindPos();
+    std::cout << "************************************************************" << std::endl;
+    std::cout << "[INFO] Hand# " << game_state_.hand_number << std::endl;
     std::cout << "[INFO] Player " << game_state_.sb_pos << " posts SB:" << game_state_.sb_amount << std::endl;
     std::cout << "[INFO] Player " << game_state_.bb_pos << " posts BB:" << game_state_.bb_amount << std::endl;
 //No longer needs    players[game_state_.sb_pos]->Bet(game_state_.sb_amount);
@@ -209,7 +213,9 @@ vector<int> Game::GetWinner(){
         }
 
     }
-    std::cout<< "[INFO] Winner(s): " << winner << std::endl;
+    #ifdef DEBUG
+        std::cout<< "[DEBUG] Winner: " << winner << std::endl;
+    #endif
     return winner;
 }
 
@@ -361,16 +367,10 @@ void Game::CleanCommunityCard() {
 }
 
 void Game::ResetGameState() {
-    //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
 
-    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
-        if (game_state_.nb_of_buyins[iplayer] > 0)
-            game_state_.player_status[iplayer] = 1;
-    }
-
-    // Always reset stacksize
-    std::copy(game_state_.starting_stack_size, game_state_.starting_stack_size+9, game_state_.stack_size); 
-
+	CleanCommunityCard();
+	RemovePlayerCard();
+    game_state_.hand_number++;
     game_state_.current_street = 0;
     game_state_.pot_size = 0;
     game_state_.total_pot_size = 0;
@@ -380,7 +380,14 @@ void Game::ResetGameState() {
     game_state_.action_history.flop.clear();
     game_state_.action_history.turn.clear();
     game_state_.action_history.river.clear();
-
+    //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
+        
+    for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
+        if (iplayer == 0 or iplayer == 1 )
+            game_state_.player_status[iplayer] = 1;
+    }
+    // Always reset stacksize
+    std::copy(game_state_.starting_stack_size, game_state_.starting_stack_size+9, game_state_.stack_size); 
 }
 
 
@@ -458,4 +465,11 @@ bool Game::HasNoMoreActions() {
         return 1;
     else
         return 0;
+}
+
+
+void Game::PrintResult() {
+    std::cout << "After " << game_state_.hand_number << " hands, " << std::endl;
+    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] / 100000 / game_state_.hand_number << "mbb/g" << std::endl;
+    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] / 100000 / game_state_.hand_number << "mbb/g" << std::endl;
 }

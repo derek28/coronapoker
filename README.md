@@ -15,7 +15,7 @@ Step 2: Setup main() like follow:
         game.AddPlayer(1,10000, player2);
         int number_of_hands = 10000;
 
-Step 3: Compile and run ./xxx >log 2>&1
+Step 3: Compile and run ./xxx >log 2>&1 ; or ./xxx >/run/shm/log 2>&1 or ./xxx >/dev/null
 
 
 

@@ -65,16 +65,12 @@ int main()
 			}
 		}
 		//game.PrintGameState();
-		game.CleanCommunityCard();
-		game.RemovePlayerCard();
 		game.MoveBtn();
-
-		
-		//std::cin.ignore();
 	}
 
 	clock_t end = clock();
 	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
 	std::cout << number_of_hands << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;	
+	game.PrintResult();
 	return 0;
 }
