@@ -48,7 +48,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			cout << "[AI] I am first to act..." << endl;
 			if (IHS > 0.6) {
 				action_to_return.action = 2;		// raise 
-				action_to_return.amount = 2 * game_state.pot_size;
+				action_to_return.amount = 2 * game_state.total_pot_size;
 			} else {
 				action_to_return.action = 1;		// call
 			}
@@ -59,16 +59,17 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 				cout << "[AI] OK... you call..." << endl;
 				if (IHS > 0.7) {
 					action_to_return.action = 2;		// raise 
-					action_to_return.amount = 2 * game_state.pot_size;
+					action_to_return.amount = 2 * game_state.total_pot_size;
 				}
 				action_to_return.action = 1;		// call
 			} else {					// opp raises
 				cout << "[AI] You raised..." << endl;
 				if (IHS > 0.8) {
 					action_to_return.action = 2;		// raise 
-					action_to_return.amount = 2 * game_state.pot_size;
+					action_to_return.amount = 2 * game_state.total_pot_size;
+				} else {
+					action_to_return.action = 1;		// call
 				}
-				action_to_return.action = 1;		// call
 			}
 		}
 

@@ -400,9 +400,7 @@ ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
             ac.player_action.amount = 0;
             ac.player_action.action = 0; */
         ac.player_action.amount = legal_actions.LegalCall.amount;
-        }
-    }
-    else if ( ac.player_action.action == 2) {
+    } else if ( ac.player_action.action == 2) {
         if ( ac.player_action.amount < legal_actions.LegalMinRaise.amount ) {
             std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
                       << " ,should be at least: " <<  legal_actions.LegalMinRaise.amount \
