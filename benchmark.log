@@ -1,0 +1,13 @@
+TAG 0.0: April-13
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./poker > /run/shm/log 2>&1
+
+real	0m2.725s
+user	0m1.174s
+sys	0m1.120s
+
+
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./poker > /dev/null
+
+real	0m1.698s
+user	0m1.031s
+sys	0m0.426s
