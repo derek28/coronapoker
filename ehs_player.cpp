@@ -29,10 +29,10 @@ int GetNumOfActions(GameState game_state, int street) {
 Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	Action action_to_return;
 	
-	std::cout << "Your hole card is:" << GetHoleCards() << std::endl;
-	std::cout << "You are seat " << GetID() << std::endl;
-	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount << " ";
-	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
+	std::cout << "[AI] My cards are:" << GetHoleCards() << std::endl;
+	std::cout << "[AI] I am at seat " << GetID() << std::endl;
+//	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount << " ";
+//	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
 	std::cout << std::endl;
 
 	float IHS, EHS;
@@ -45,6 +45,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		IHS = GetImmediateStrength(my_cards, board, NULL);
 		if (GetNumOfActions(game_state, 0) == 0) {
 			// first to act
+			cout << "[AI] I am first to act..." << endl;
 			if (IHS > 0.6) {
 				action_to_return.action = 2;		// raise 
 				action_to_return.amount = 2 * game_state.pot_size;
@@ -55,12 +56,14 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 
 		if (GetNumOfActions(game_state, 0) == 1) {
 			if (game_state.action_history.preflop[0].player_action.action == 1)  { // opp calls
+				cout << "[AI] OK... you call..." << endl;
 				if (IHS > 0.7) {
 					action_to_return.action = 2;		// raise 
 					action_to_return.amount = 2 * game_state.pot_size;
 				}
 				action_to_return.action = 1;		// call
 			} else {					// opp raises
+				cout << "[AI] You raised..." << endl;
 				if (IHS > 0.8) {
 					action_to_return.action = 2;		// raise 
 					action_to_return.amount = 2 * game_state.pot_size;
@@ -70,6 +73,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		}
 
 		if (GetNumOfActions(game_state, 0) >= 2) {
+			cout << "[AI] You raised me!" << endl;
 			if (IHS > 0.8) {
 				action_to_return.action = 1;	// call
 			} else {
