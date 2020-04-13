@@ -60,13 +60,13 @@ struct ActionHistory {
 
     friend std::ostream& operator<<(std::ostream& os, ActionHistory ac_his)
     {
-        os << "***PREFLOP***" << std::endl;
+        os << "************PREFLOP**********" << std::endl;
         os << ac_his.preflop;
-        os << "***FLOP***" << std::endl;
+        os << "************FLOP*************" << std::endl;
         os << ac_his.flop;
-        os << "***TURN***" << std::endl;
+        os << "************TURN*************" << std::endl;
         os << ac_his.turn;
-        os << "***RIVER***" << std::endl;
+        os << "************RIVER************" << std::endl;
         os << ac_his.river;
         return os;
     }

@@ -287,7 +287,7 @@ void Game::SetupNextStreet() {
         game_state_.community_cards.push_back(deck.Deal());
     }
 
-    std::cout << "[INFO] ***" << static_cast<StreetName> (game_state_.current_street) <<"*** ";
+    std::cout << "[INFO] ************" << static_cast<StreetName> (game_state_.current_street) <<"************ ";
     for (auto const& card : game_state_.community_cards)
         std::cout << card << ' ';
     std::cout << std::endl;
@@ -393,13 +393,13 @@ void Game::ResetGameState() {
 
 ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
     if ( ac.player_action.action == 1 ) {
-        /* if (ac.player_action.amount != legal_actions.LegalCall.amount ) {
-             std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
-                      << " ,should be : " <<  legal_actions.LegalCall.amount \
-                      << " .Default to fold" << std::endl;
-            ac.player_action.amount = 0;
-            ac.player_action.action = 0; */
-        ac.player_action.amount = legal_actions.LegalCall.amount;
+        if (ac.player_action.amount != legal_actions.LegalCall.amount ) {
+                std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
+                        << " ,should be : " <<  legal_actions.LegalCall.amount \
+                        << " .Default to legal call/check size" << std::endl;
+                ac.player_action.amount = legal_actions.LegalCall.amount;
+            }
+
     } else if ( ac.player_action.action == 2) {
         if ( ac.player_action.amount < legal_actions.LegalMinRaise.amount ) {
             std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
