@@ -393,12 +393,13 @@ void Game::ResetGameState() {
 
 ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
     if ( ac.player_action.action == 1 ) {
-        if (ac.player_action.amount != legal_actions.LegalCall.amount ) {
-            std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
+        /* if (ac.player_action.amount != legal_actions.LegalCall.amount ) {
+             std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
                       << " ,should be : " <<  legal_actions.LegalCall.amount \
                       << " .Default to fold" << std::endl;
             ac.player_action.amount = 0;
-            ac.player_action.action = 0;
+            ac.player_action.action = 0; */
+        ac.player_action.amount = legal_actions.LegalCall.amount;
         }
     }
     else if ( ac.player_action.action == 2) {
