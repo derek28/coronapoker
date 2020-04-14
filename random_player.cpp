@@ -15,18 +15,18 @@ Action RandomPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	int action = 0; // 0 fold 1 check/call 2 min-raise 3 1/2 pot raise/bet
 
 	//20% fold/check  
-	//60% check/call  
-	//15% min-raise (if possible, otherwise call) 
-	//5% bigger raise (if possible, otherwise call)
+	//30% check/call  
+	//20% min-raise (if possible, otherwise call) 
+	//30% 1/2 pot raise (if possible, otherwise call)
 	if ( rand_num < 20) {
 		action = 0;
 		if (legal_actions.LegalCall.amount == 0) //if call is free, then call
 			action = 1;
 	}
-	else if (rand_num < 80) {
+	else if (rand_num < 50) {
 		action = 1;
 	} 
-	else if (rand_num < 95) {
+	else if (rand_num < 70) {
 		action = 2;
 		if (legal_actions.LegalMinRaise.amount == -1)
 			action = 1;

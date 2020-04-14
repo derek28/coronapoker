@@ -471,6 +471,6 @@ bool Game::HasNoMoreActions() {
 
 void Game::PrintResult() {
     std::cout << "After " << game_state_.hand_number << " hands, " << std::endl;
-    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] / 100000 / game_state_.hand_number << "mbb/g" << std::endl;
-    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] / 100000 / game_state_.hand_number << "mbb/g" << std::endl;
+    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] * 100000 / game_state_.hand_number << "mbb/g" << std::endl;
+    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] * 100000 / game_state_.hand_number << "mbb/g" << std::endl;
 }
