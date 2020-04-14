@@ -76,11 +76,39 @@ void testPokerhandComparison() {
 	std::cout << "*****Test: Pokerhand Strength Comparison*****" << std::endl;
 //	PokerHand ph1("2H 2D 4H 5C AD 7C 8H");
 //	PokerHand ph2("2S 2C 4H 6H AD 7H 8H");
-	PokerHand ph1("6D AS JD TC KH TS 3D");
-	PokerHand ph2("AD 5H JD TC KH TS 3D");
-    
+
+//	PokerHand ph1("6D AS JD TC KH TS 3D");
+//	PokerHand ph2("AD 5H JD TC KH TS 3D");
+
+//	PokerHand ph1("JH 9D JD JC 9C AD QS");
+//	PokerHand ph2("JH 9D JD JC 9C 4C AS");
+
+	PokerHand ph1;
+	PokerHand ph2;
+	ph1.add( Card(1,4) );
+	ph1.add( Card(12,1) );
+	ph1.add( Card(11,2) );
+	ph1.add( Card(9,4) );
+	ph1.add( Card(11,4) );
+	ph1.add( Card(11,3) );
+	ph1.add( Card(9,3) );
+
+	ph2.add( Card(4,3) );
+	ph2.add( Card(1,1) );
+	ph2.add( Card(11,2) );
+	ph2.add( Card(9,4) );
+	ph2.add( Card(11,4) );
+	ph2.add( Card(11,3) );
+	ph2.add( Card(9,3) );
+
 	ph1.print();
 	ph2.print();
+
+    ph1.printarray();
+	ph2.printarray();
+
+	std::cout << "ph1 strength:" << ph1.GetStrength() << std::endl;
+	std::cout << "ph2 strength:" << ph2.GetStrength() << std::endl;
 
 	std::cout << "ph1 < ph2 : " << ( ph1 < ph2 ) << std::endl;
 	std::cout << "ph1 = ph2 : " << ( ph1 == ph2 ) << std::endl;
