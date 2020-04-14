@@ -252,7 +252,9 @@ void Game::CollectMoneyFromBetRing() {
     #ifdef DEBUG
     std::cout << "[INFO] Dealer collects money from bet ring and put into pot" << std::endl ;
     #endif
-
+    if (game_state_.pot_size != game_state_.total_pot_size)
+        std::cerr << "[ERROR] Pot size: " << game_state_.pot_size  \
+                    << " total pot size: " << game_state_.total_pot_size << std::endl;
     std::cout << "[INFO] Pot size is: " << game_state_.pot_size << std::endl;
 }
 
@@ -325,8 +327,8 @@ void Game::UpdateGameState(ActionWithID ac) {
             game_state_.aggressor = ac.ID;
             game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
             game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
-            game_state_.bet_ring[ac.ID] = ac.player_action.amount;
             game_state_.total_pot_size += (ac.player_action.amount - game_state_.bet_ring[ac.ID] );
+            game_state_.bet_ring[ac.ID] = ac.player_action.amount;
             break;
         default:
             std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
