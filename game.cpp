@@ -137,7 +137,7 @@ void Game::ComputeBlindPos() {
 
 int Game::FindNextPlayer(int i) {
     i++;
-    while ( game_state_.player_status[i%9] != 1 /*|| IsPlayerAllIn(i) */ ) {
+    while ( game_state_.player_status[i%9] != 1 && game_state_.player_status[i%9] != 2/*|| IsPlayerAllIn(i) */ ) {
         i++;
     }
     return i%9;
@@ -314,7 +314,7 @@ void Game::UpdateGameState(ActionWithID ac) {
     switch (ac.player_action.action ) {
         case 0:
             game_state_.num_player_in_hand--;
-            game_state_.player_status[ac.ID] = 0;
+            game_state_.player_status[ac.ID] = 2;
             break;
         case 1:
             game_state_.stack_size[ac.ID] -= ac.player_action.amount;
@@ -332,7 +332,7 @@ void Game::UpdateGameState(ActionWithID ac) {
             std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
             std::cerr << "default to fold" << std::endl;
             game_state_.num_player_in_hand--;
-            game_state_.player_status[ac.ID] = 0;
+            game_state_.player_status[ac.ID] = 2;
     }
     //Update game history game_state_.ActionHistory
     switch (game_state_.current_street) {
