@@ -76,8 +76,8 @@ void testPokerhandComparison() {
 	std::cout << "*****Test: Pokerhand Strength Comparison*****" << std::endl;
 //	PokerHand ph1("2H 2D 4H 5C AD 7C 8H");
 //	PokerHand ph2("2S 2C 4H 6H AD 7H 8H");
-	PokerHand ph1("JD TC KH TS 3D 6D AS");
-	PokerHand ph2("JD TC KH TS 3D AD 5H");
+	PokerHand ph1("6D AS JD TC KH TS 3D");
+	PokerHand ph2("AD 5H JD TC KH TS 3D");
     
 	ph1.print();
 	ph2.print();

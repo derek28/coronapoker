@@ -142,6 +142,7 @@ struct ActionHistory {
             std::cout << stack_size[i] << "," ;
          std::cout << std::endl;
          std::cout << "pot_size:" << pot_size << std::endl;
+         std::cout << "total_pot_size:" << total_pot_size << std::endl;
          std::cout << "current_street:" << current_street << std::endl;
          std::cout << "community_cards:";
          for (auto &i: community_cards)
