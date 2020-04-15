@@ -57,6 +57,8 @@ public:
     void PrintGameState();  //may consider add a parameter to redirect output, append mode
     void PrintGameStateDebug();
     void PrintResult();
+    void Start();
+    void SetNumOfHands(int i);
 private:
     //int big_blind_ = 100;
     //int small_blind_ = 50;
@@ -69,4 +71,5 @@ private:
 	Player *players[NUM_OF_PLAYERS] ; //the index is thus player ID 
 	Deck deck;
     GameState game_state_ ;
+    int num_of_hands_to_run_;
 };

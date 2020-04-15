@@ -356,6 +356,32 @@ void Game::UpdateGameState(ActionWithID ac) {
     
     game_state_.next_player_to_act = FindNextPlayer(game_state_.next_player_to_act);
 
+    #ifdef DEBUG
+        PrintGameStateDebug();
+    #endif
+    //Check if there is only 1 player left
+    if (IsPotUncontested() ){
+        std::cout << "[INFO] reach end of game: pot uncontested" << std::endl;
+        vector<int> winners = GetWinner();
+        CollectMoneyFromBetRing();
+        PayWinner(winners);
+        game_state_.current_street = 5;
+        return;				
+    }
+    //If end of street is reached
+    if (IsEndOfStreet()) {
+        CollectMoneyFromBetRing();
+        SetupNextStreet();
+    }
+
+    //End of game condition: we reach showdown
+    if (HasReachShowdown()) {
+        std::cout << "[INFO] reach end of game: showdown" << std::endl;
+        vector<int> winners = GetWinner();
+        PayWinner(winners);
+        game_state_.current_street = 5;
+        return;
+    }
 
 }
 
@@ -471,6 +497,33 @@ bool Game::HasNoMoreActions() {
 
 void Game::PrintResult() {
     std::cout << "After " << game_state_.hand_number << " hands, " << std::endl;
-    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] * 100000 / game_state_.hand_number << "mbb/g" << std::endl;
-    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] * 100000 / game_state_.hand_number << "mbb/g" << std::endl;
+    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] * 100000 / game_state_.hand_number << "mbb/hand" << std::endl;
+    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] * 100000 / game_state_.hand_number << "mbb/hand" << std::endl;
+}
+
+bool Game::IsCurrentHandFinished() {
+    return (game_state_.current_street == 5); // 3=river 4=showdown 5=finished
+}
+
+void Game::SetNumOfHands(int nhands) {
+    num_of_hands_to_run_ = nhands;
+}
+
+void Game::Start() {
+    for (int ihand = 0 ; ihand < num_of_hands_to_run_ ; ihand++ ) {
+		ResetGameState();
+		PostBlinds();
+        ShuffleAndDeal();
+        
+		while ( !IsCurrentHandFinished() ) { //it breaks when a hand finishes
+			//Ask player (pointed by nextplayertoact) to act
+			LegalActions legal_ac = GetAllLegalActions();
+			ActionWithID ac = AskPlayerToAct(legal_ac);
+			ac = VerifyAction(ac, legal_ac);
+			UpdateGameState(ac);
+		}
+		//game.PrintGameState();
+		MoveBtn();
+	}
+
 }
