@@ -6,6 +6,8 @@
 #include "game_state.h"
 #include "random_player.h"
 #include "human_player.h"
+#include "ehs_player.h"
+
 using namespace std;
 
 int main()
@@ -17,60 +19,22 @@ int main()
 
 
 	//Setup game here
-	// Define the 2 players.	
+	// Define the 2 players.
+	int nhands=50000;	
 	Player* player1 = new HumanPlayer();
-	Player* player2 = new RandomPlayer();
+	Player* player2 = new EhsPlayer();
 	game.AddPlayer(0,10000, player1);
 	game.AddPlayer(1,10000, player2);
-	int number_of_hands = 10;
-
-
+	game.SetNumOfHands(nhands);
 	#ifdef DEBUG
 		game.PrintGameState();
 	#endif
-     for (int ihand = 0 ; ihand < number_of_hands ; ihand++ ) {
-		game.ResetGameState();
-		game.PostBlinds();
-        game.ShuffleAndDeal();
-        
-		while (1) { //it breaks when a hand finishes
-			//Ask player (pointed by nextplayertoact) to act
-			LegalActions legal_ac = game.GetAllLegalActions();
-			ActionWithID ac = game.AskPlayerToAct(legal_ac);
-			ac = game.VerifyAction(ac, legal_ac);
-			game.UpdateGameState(ac);
-			#ifdef DEBUG
-				game.PrintGameStateDebug();
-			#endif
-			//Check if there is only 1 player left
-			if (game.IsPotUncontested() ){
-				std::cout << "[INFO] reach end of game: pot uncontested" << std::endl;
-				vector<int> winners = game.GetWinner();
-				game.CollectMoneyFromBetRing();
-				game.PayWinner(winners);
-				break;				
-			}
-			//If end of street is reached
-			if (game.IsEndOfStreet()) {
-			    game.CollectMoneyFromBetRing();
-				game.SetupNextStreet();
-			}
 
-			//End of game condition: we reach showdown
-            if (game.HasReachShowdown()) {
-				std::cout << "[INFO] reach end of game: showdown" << std::endl;
-			    vector<int> winners = game.GetWinner();
-				game.PayWinner(winners);
-				break;
-			}
-		}
-		//game.PrintGameState();
-		game.CleanCommunityCard();
-		game.RemovePlayerCard();
-		game.MoveBtn();
-
-		
-		//std::cin.ignore();
-	}	
+	clock_t begin= clock();
+	game.Start();
+	clock_t end = clock();
+	double elapsed_secs= double(end-begin) / CLOCKS_PER_SEC;
+	std::cout << nhands << " hand evaluation done in " << elapsed_secs << " seconds" << std::endl;	
+	game.PrintResult();
 	return 0;
 }

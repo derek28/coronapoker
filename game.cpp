@@ -31,7 +31,7 @@ int Game::AddPlayer(int seat, int stack_size, int type) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
+    game_state_.nb_of_buyins[seat] = 0;
     game_state_.player_status[seat] = 1; //1=in-game
 	return 0;
 }
@@ -42,9 +42,11 @@ int Game::AddPlayer(int seat, int stack_size, Player* player) {
     game_state_.num_player++;
     game_state_.stack_size[seat] = stack_size;
     game_state_.starting_stack_size[seat] = stack_size;
-    game_state_.nb_of_buyins[seat] = 10000; //10000 buyins
+    game_state_.nb_of_buyins[seat] = 0;
     game_state_.player_status[seat] = 1; //1=in-game
     players[seat]->SetID(seat);
+
+    players[seat]->SetStatus(1); //#define STATUS_IN_GAME		1
 }
 
 void Game::RemovePlayer(int seat) {
@@ -135,7 +137,7 @@ void Game::ComputeBlindPos() {
 
 int Game::FindNextPlayer(int i) {
     i++;
-    while ( game_state_.player_status[i%9] != 1 /*|| IsPlayerAllIn(i) */ ) {
+    while ( game_state_.player_status[i%9] != 1 && game_state_.player_status[i%9] != 2/*|| IsPlayerAllIn(i) */ ) {
         i++;
     }
     return i%9;
@@ -211,7 +213,9 @@ vector<int> Game::GetWinner(){
         }
 
     }
-    std::cout<< "[INFO] Winner(s): " << winner << std::endl;
+    #ifdef DEBUG
+        std::cout<< "[DEBUG] Winner: " << winner << std::endl;
+    #endif
     return winner;
 }
 
@@ -248,7 +252,9 @@ void Game::CollectMoneyFromBetRing() {
     #ifdef DEBUG
     std::cout << "[INFO] Dealer collects money from bet ring and put into pot" << std::endl ;
     #endif
-
+    if (game_state_.pot_size != game_state_.total_pot_size)
+        std::cerr << "[ERROR] Pot size: " << game_state_.pot_size  \
+                    << " total pot size: " << game_state_.total_pot_size << std::endl;
     std::cout << "[INFO] Pot size is: " << game_state_.pot_size << std::endl;
 }
 
@@ -283,7 +289,7 @@ void Game::SetupNextStreet() {
         game_state_.community_cards.push_back(deck.Deal());
     }
 
-    std::cout << "[INFO] ***" << static_cast<StreetName> (game_state_.current_street) <<"*** ";
+    std::cout << "[INFO] ************" << static_cast<StreetName> (game_state_.current_street) <<"************ ";
     for (auto const& card : game_state_.community_cards)
         std::cout << card << ' ';
     std::cout << std::endl;
@@ -310,7 +316,7 @@ void Game::UpdateGameState(ActionWithID ac) {
     switch (ac.player_action.action ) {
         case 0:
             game_state_.num_player_in_hand--;
-            game_state_.player_status[ac.ID] = 0;
+            game_state_.player_status[ac.ID] = 2;
             break;
         case 1:
             game_state_.stack_size[ac.ID] -= ac.player_action.amount;
@@ -321,14 +327,14 @@ void Game::UpdateGameState(ActionWithID ac) {
             game_state_.aggressor = ac.ID;
             game_state_.raise_amount = ac.player_action.amount - *std::max_element(game_state_.bet_ring,game_state_.bet_ring+9);
             game_state_.stack_size[ac.ID] -= (ac.player_action.amount - game_state_.bet_ring[ac.ID] ) ;
+            game_state_.total_pot_size += (ac.player_action.amount - game_state_.bet_ring[ac.ID] );
             game_state_.bet_ring[ac.ID] = ac.player_action.amount;
-            game_state_.total_pot_size += ac.player_action.amount;
             break;
         default:
             std::cerr << "[ERROR] Unknown player action " << ac.player_action.action << " by " << ac.ID << std::endl;
             std::cerr << "default to fold" << std::endl;
             game_state_.num_player_in_hand--;
-            game_state_.player_status[ac.ID] = 0;
+            game_state_.player_status[ac.ID] = 2;
     }
     //Update game history game_state_.ActionHistory
     switch (game_state_.current_street) {
@@ -350,6 +356,32 @@ void Game::UpdateGameState(ActionWithID ac) {
     
     game_state_.next_player_to_act = FindNextPlayer(game_state_.next_player_to_act);
 
+    #ifdef DEBUG
+        PrintGameStateDebug();
+    #endif
+    //Check if there is only 1 player left
+    if (IsPotUncontested() ){
+        std::cout << "[INFO] reach end of game: pot uncontested" << std::endl;
+        vector<int> winners = GetWinner();
+        CollectMoneyFromBetRing();
+        PayWinner(winners);
+        game_state_.current_street = 5;
+        return;				
+    }
+    //If end of street is reached
+    if (IsEndOfStreet()) {
+        CollectMoneyFromBetRing();
+        SetupNextStreet();
+    }
+
+    //End of game condition: we reach showdown
+    if (HasReachShowdown()) {
+        std::cout << "[INFO] reach end of game: showdown" << std::endl;
+        vector<int> winners = GetWinner();
+        PayWinner(winners);
+        game_state_.current_street = 5;
+        return;
+    }
 
 }
 
@@ -379,7 +411,7 @@ void Game::ResetGameState() {
     //std::copy(game_state_.stack_size, game_state_.stack_size+9, game_state_.starting_stack_size);
         
     for (int iplayer = 0 ; iplayer < 9 ; iplayer++ ) {
-        if (game_state_.nb_of_buyins[iplayer] > 0)
+        if (iplayer == 0 or iplayer == 1 )
             game_state_.player_status[iplayer] = 1;
     }
     // Always reset stacksize
@@ -390,14 +422,13 @@ void Game::ResetGameState() {
 ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
     if ( ac.player_action.action == 1 ) {
         if (ac.player_action.amount != legal_actions.LegalCall.amount ) {
-            std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
-                      << " ,should be : " <<  legal_actions.LegalCall.amount \
-                      << " .Default to fold" << std::endl;
-            ac.player_action.amount = 0;
-            ac.player_action.action = 0;
-        }
-    }
-    else if ( ac.player_action.action == 2) {
+                std::cerr << "[WARNING] call amount is invalid: " << ac.player_action.amount  \
+                        << " ,should be : " <<  legal_actions.LegalCall.amount \
+                        << " .Default to legal call/check size" << std::endl;
+                ac.player_action.amount = legal_actions.LegalCall.amount;
+            }
+
+    } else if ( ac.player_action.action == 2) {
         if ( ac.player_action.amount < legal_actions.LegalMinRaise.amount ) {
             std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
                       << " ,should be at least: " <<  legal_actions.LegalMinRaise.amount \
@@ -461,4 +492,38 @@ bool Game::HasNoMoreActions() {
         return 1;
     else
         return 0;
+}
+
+
+void Game::PrintResult() {
+    std::cout << "After " << game_state_.hand_number << " hands, " << std::endl;
+    std::cout << "Player 1 perf: " << game_state_.nb_of_buyins[0] * 100000 / game_state_.hand_number << "mbb/hand" << std::endl;
+    std::cout << "Player 2 perf: " << game_state_.nb_of_buyins[1] * 100000 / game_state_.hand_number << "mbb/hand" << std::endl;
+}
+
+bool Game::IsCurrentHandFinished() {
+    return (game_state_.current_street == 5); // 3=river 4=showdown 5=finished
+}
+
+void Game::SetNumOfHands(int nhands) {
+    num_of_hands_to_run_ = nhands;
+}
+
+void Game::Start() {
+    for (int ihand = 0 ; ihand < num_of_hands_to_run_ ; ihand++ ) {
+		ResetGameState();
+		PostBlinds();
+        ShuffleAndDeal();
+        
+		while ( !IsCurrentHandFinished() ) { //it breaks when a hand finishes
+			//Ask player (pointed by nextplayertoact) to act
+			LegalActions legal_ac = GetAllLegalActions();
+			ActionWithID ac = AskPlayerToAct(legal_ac);
+			ac = VerifyAction(ac, legal_ac);
+			UpdateGameState(ac);
+		}
+		//game.PrintGameState();
+		MoveBtn();
+	}
+
 }

@@ -18,7 +18,8 @@ void testHumanPlayer();
 
 int main(){
     std::srand(std::time(0));
-	testHumanPlayer();
+//	testHandStrength();
+	testPokerhandComparison();
     return 0;
 }
 
@@ -40,28 +41,31 @@ void testHumanPlayer() {
 }
 
 void testHandStrength() {
-	int num_of_cards = 3;
-	Card hd[2];
-	Card op[2];
-	Card com[5];
-	op[0] = Card(9, CLUB);
-	op[1] = Card(9, DIAMOND);
-	hd[0] = Card(2, CLUB);
-	hd[1] = Card(2, HEART);
-	com[0] = Card(7, SPADE);
-	com[1] = Card(8, SPADE);
-	com[2] = Card(2, DIAMOND);	
-	com[3] = Card(13, DIAMOND);
-	com[4] = Card(1, DIAMOND);
-	cout << "My hand: " << hd[0] << " " << hd[1] << endl;
+	vector <Card> my_hand;
+	vector <Card> opp_hand;
+	vector <Card> board;
+
+	opp_hand.push_back(Card(9, CLUB));
+	opp_hand.push_back(Card(9, DIAMOND));
+
+	my_hand.push_back(Card(2, CLUB));
+	my_hand.push_back(Card(2, HEART));
+
+	board.push_back(Card(7, SPADE));
+	board.push_back(Card(8, HEART));
+	board.push_back(Card(2, SPADE));
+	//board.push_back(Card(13, HEART));
+	//board.push_back(Card(1, DIAMOND));
+
+	cout << "My hand: " << my_hand[0] << " " << my_hand[1] << endl;
 	cout << "Community cards: ";
-	for (int i = 0; i < num_of_cards; i++) {
-		cout << com[i] << " ";
+	for (int i = 0; i < board.size(); i++) {
+		cout << board[i] << " ";
 	}
 	cout << endl;
-	float IHS = GetHandStrength(hd, com, num_of_cards, NULL);
+	float IHS = GetImmediateStrength(my_hand, board, NULL);
 	cout << "Immediate hand strength = " << IHS << endl;
-	float EHS = GetEffectiveStrength(hd, com, num_of_cards, NULL);
+	float EHS = GetEffectiveStrength(my_hand, board, NULL);
 	cout << "Effective hand strength = " << EHS << endl;
 //	float equity = GetHandEquity(hd, op, com, num_of_cards);
 //	cout << "Hand equity against " << op[0] << " " << op[1] << " is " 
@@ -70,10 +74,41 @@ void testHandStrength() {
 
 void testPokerhandComparison() {
 	std::cout << "*****Test: Pokerhand Strength Comparison*****" << std::endl;
-	PokerHand ph1("2H 2D 4H 5C AD 7C 8H");
-	PokerHand ph2("2S 2C 4H 6H AD 7H 8H");
+//	PokerHand ph1("2H 2D 4H 5C AD 7C 8H");
+//	PokerHand ph2("2S 2C 4H 6H AD 7H 8H");
+
+//	PokerHand ph1("6D AS JD TC KH TS 3D");
+//	PokerHand ph2("AD 5H JD TC KH TS 3D");
+
+//	PokerHand ph1("JH 9D JD JC 9C AD QS");
+//	PokerHand ph2("JH 9D JD JC 9C 4C AS");
+
+	PokerHand ph1;
+	PokerHand ph2;
+	ph1.add( Card(1,4) );
+	ph1.add( Card(12,1) );
+	ph1.add( Card(11,2) );
+	ph1.add( Card(9,4) );
+	ph1.add( Card(11,4) );
+	ph1.add( Card(11,3) );
+	ph1.add( Card(9,3) );
+
+	ph2.add( Card(4,3) );
+	ph2.add( Card(1,1) );
+	ph2.add( Card(11,2) );
+	ph2.add( Card(9,4) );
+	ph2.add( Card(11,4) );
+	ph2.add( Card(11,3) );
+	ph2.add( Card(9,3) );
+
 	ph1.print();
 	ph2.print();
+
+    ph1.printarray();
+	ph2.printarray();
+
+	std::cout << "ph1 strength:" << ph1.GetStrength() << std::endl;
+	std::cout << "ph2 strength:" << ph2.GetStrength() << std::endl;
 
 	std::cout << "ph1 < ph2 : " << ( ph1 < ph2 ) << std::endl;
 	std::cout << "ph1 = ph2 : " << ( ph1 == ph2 ) << std::endl;

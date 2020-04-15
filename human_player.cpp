@@ -47,10 +47,8 @@ Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	int count;
 	unsigned amount;
 	
-	std::cout << "Your hole card is:" << GetHoleCards() << std::endl;
-	std::cout << "You are seat " << GetID() << std::endl;
-	std::cout << "Min raise:" << legal_actions.LegalMinRaise.amount << " ";
-	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
+	std::cout << "You are player " << GetID() << " (" << GetHoleCards() << ") ";
+	std::cout << "Min/Max raise:" << legal_actions.LegalMinRaise.amount << "/" << legal_actions.LegalMaxRaise.amount;
 	std::cout << std::endl;
 
 	while (1) {

@@ -60,13 +60,13 @@ struct ActionHistory {
 
     friend std::ostream& operator<<(std::ostream& os, ActionHistory ac_his)
     {
-        os << "***PREFLOP***" << std::endl;
+        os << "************PREFLOP**********" << std::endl;
         os << ac_his.preflop;
-        os << "***FLOP***" << std::endl;
+        os << "************FLOP*************" << std::endl;
         os << ac_his.flop;
-        os << "***TURN***" << std::endl;
+        os << "************TURN*************" << std::endl;
         os << ac_his.turn;
-        os << "***RIVER***" << std::endl;
+        os << "************RIVER************" << std::endl;
         os << ac_his.river;
         return os;
     }
@@ -86,6 +86,7 @@ struct ActionHistory {
      int sb_amount = 50;
      int bb_amount = 100;
      int hand_number = 0;
+     double nb_of_buyins[9] = {};
      //Info below are updated per betting street during the game
      std::vector<Card> community_cards;
      int pot_size = 0;
@@ -100,7 +101,6 @@ struct ActionHistory {
      int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
      int allin_state[9] = {};
      int raise_amount = 0; // raise size - previous raise size
-     double nb_of_buyins[9] = {};
      ActionHistory action_history;
      
      //Info below are updated at the end of the game
@@ -142,6 +142,7 @@ struct ActionHistory {
             std::cout << stack_size[i] << "," ;
          std::cout << std::endl;
          std::cout << "pot_size:" << pot_size << std::endl;
+         std::cout << "total_pot_size:" << total_pot_size << std::endl;
          std::cout << "current_street:" << current_street << std::endl;
          std::cout << "community_cards:";
          for (auto &i: community_cards)

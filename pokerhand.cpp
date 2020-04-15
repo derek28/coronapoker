@@ -122,6 +122,7 @@ void PokerHand::print(){
 }
 
 void PokerHand::UpdateStrength() {
+	std::fill(strength.begin(),strength.end(),0);
 	do {
 		if( this->_is_SF()) { continue;}
 		if( this->_is_quad()) {continue;}
