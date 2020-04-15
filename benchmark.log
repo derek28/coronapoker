@@ -11,3 +11,36 @@ jiajun@VBox:~/Desktop/CoronaPoker$ time ./poker > /dev/null
 real	0m1.698s
 user	0m1.031s
 sys	0m0.426s
+
+TAG 0.1: April-14 (modified Random AI strategy)
+
+jiajun@VBox:~/Desktop/CoronaPoker$  time ./benchmark > /run/shm/log 2>&1
+
+real	0m2.103s
+user	0m0.944s
+sys	    0m0.796s
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./benchmark > /run/shm/log 2>&1
+
+real	0m2.091s
+user	0m0.930s
+sys	    0m0.807s
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./benchmark > /run/shm/log 2>&1
+
+real	0m2.208s
+user	0m0.907s
+sys	    0m0.871s
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./benchmark > /dev/null 2>&1
+
+real	0m1.429s
+user	0m0.796s
+sys	    0m0.379s
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./benchmark > /dev/null 2>&1
+
+real	0m1.583s
+user	0m0.833s
+sys	    0m0.449s
+jiajun@VBox:~/Desktop/CoronaPoker$ time ./benchmark > /dev/null 2>&1
+
+real	0m1.432s
+user	0m0.820s
+sys	    0m0.354s
