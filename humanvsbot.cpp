@@ -7,6 +7,7 @@
 #include "random_player.h"
 #include "human_player.h"
 #include "ehs_player.h"
+#include "server.h"
 
 using namespace std;
 
@@ -16,11 +17,9 @@ int main()
 	std::srand((unsigned) time(0));
 	// Instantiate Game
     Game game;
-
-
 	//Setup game here
 	// Define the 2 players.
-	int nhands=50000;	
+	int nhands=5;	
 	Player* player1 = new HumanPlayer();
 	Player* player2 = new EhsPlayer();
 	game.AddPlayer(0,10000, player1);

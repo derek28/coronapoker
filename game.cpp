@@ -5,15 +5,31 @@
 #include "game.h"
 #include <algorithm> //std::copy for array copying, std::max_element
 
-
 using namespace std;
 
 Game::Game() {
-
+    // // Create shm;
+    // const key_t key = 23323;
+    // // shmget returns an identifier in shmid 
+    // int shmid = shmget(key,1024,0666|IPC_CREAT); 
+    // if (shmid ==-1) {
+    //  //Error
+    //     std::cerr << "something wrong when attach to shared memory ID " << key << std::endl; 
+    // }
+    // else {
+    //     std::cout << "shmid " <<shmid << "is created" << std::endl;
+    // }
+    // // shmat to attach to shared memory 
+    // game_state_shm = (int*)shmat(shmid,NULL,0);
+    // *game_state_shm = 2;
+    // std::cout << "*game_state_shm is " << *game_state_shm << std::endl;
+    // // destroy the shared memory 
+    // shmctl(shmid,IPC_RMID,NULL); 
 }
 
 Game::~Game() {
-
+    // //detach shared memory
+    // shmdt(game_state_shm);
 }
 
 int Game::AddPlayer(int seat, int stack_size, int type) {
@@ -71,7 +87,9 @@ void Game::ShuffleAndDeal() {
 		dealt_cards.push_back(deck.Deal());
 		players[i]->SetHoleCards(dealt_cards[0]);
         players[i]->SetHoleCards(dealt_cards[1]);
-
+        game_state_.player_hole_cards[i].push_back(dealt_cards[0]);
+        game_state_.player_hole_cards[i].push_back(dealt_cards[1]);
+        
         #ifdef DEBUG
         std::cout << "[Debug] Hole card of Player Seat" << i << ":";
         std::cout << dealt_cards[0] << dealt_cards[1] << std::endl;
@@ -386,8 +404,10 @@ void Game::UpdateGameState(ActionWithID ac) {
 }
 
 void Game::RemovePlayerCard() {
-    for (int i = 0 ; i < game_state_.num_player; i++ )
+    for (int i = 0 ; i < game_state_.num_player; i++ ){
         players[i]->ResetHoleCards();
+        game_state_.player_hole_cards[i].clear();
+    }
 }
 
 void Game::CleanCommunityCard() {

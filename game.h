@@ -15,6 +15,10 @@
 #include <utility>
 #include <iostream>
 #include "misc.h"
+
+#include <sys/ipc.h>
+#include <sys/shm.h> 
+
 #define NUM_OF_PLAYERS	2
 
 class Game {
@@ -71,5 +75,6 @@ private:
 	Player *players[NUM_OF_PLAYERS] ; //the index is thus player ID 
 	Deck deck;
     GameState game_state_ ;
+    // int *game_state_shm ;
     int num_of_hands_to_run_;
 };

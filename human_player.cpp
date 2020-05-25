@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "misc.h"
+#include "server.h"
 
 using namespace std;
 
@@ -40,6 +41,8 @@ vector <string> split(string str, char delim) {
 	return splitStrings;
 }
 
+
+#ifndef GUI
 Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	Action action_to_return;
 	string buff;
@@ -103,3 +106,17 @@ Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		cerr << "Program should not reach here!" << endl;
 	}		
 }
+#endif //ifndef GUI
+
+#ifdef GUI
+Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
+	GameStateNoVector gs(game_state);
+	LegalActionsSimplify la(legal_actions);
+    tcpserver.Send(gs);
+	tcpserver.Send(la);
+    Action i = tcpserver.ReadAction();
+	std::cout << i << std::endl;
+	return i;
+
+}
+#endif

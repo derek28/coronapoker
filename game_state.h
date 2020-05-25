@@ -32,6 +32,7 @@
         }
         return os;
     }
+
  };
 
 struct ActionWithID {
@@ -50,6 +51,17 @@ struct LegalActions {
     Action LegalFold;
     Action LegalMinRaise;
     Action LegalMaxRaise;
+};
+struct LegalActionsSimplify {
+    Action legal_action[4];
+    
+    LegalActionsSimplify(LegalActions la){
+        legal_action[0].amount=la.LegalFold.amount;
+        legal_action[1].amount=la.LegalCall.amount;
+        legal_action[2].amount=la.LegalMinRaise.amount;
+        legal_action[3].amount=la.LegalMaxRaise.amount;
+    }
+
 };
 
 struct ActionHistory {
@@ -108,6 +120,14 @@ struct ActionHistory {
 
 /*To be added*/ //To add range for each player.
 
+
+     //struct constructor
+     GameState(){
+         community_cards.reserve(5);
+         for (int i=0; i<9; i++)
+            player_hole_cards[i].reserve(2);
+     }
+
      void print() { //can take parameter and redirect to a file later
          std::cout << "**************************************" << std::endl;
          std::cout << "Hand#" << hand_number << std::endl;
@@ -161,4 +181,74 @@ struct ActionHistory {
 //To be written         //std::cout << ActionHistory ;
          std::cout << "**************************************" << std::endl;
      } 
+ };
+
+ struct GameStateNoVector {
+     
+     //Info below are defined when game starts
+     int num_player = 0;
+
+     //Info below are updated per game, when game starts
+     int starting_stack_size[9] = {};
+     int btn_pos = 0; // index of seat (0 to 8 for 9-max)
+     int sb_pos = 0;
+     int bb_pos = 0;
+     int sb_amount = 50;
+     int bb_amount = 100;
+     int hand_number = 0;
+     double nb_of_buyins[9] = {};
+     //Info below are updated per betting street during the game
+     Card community_cards[5];
+     int community_size=0;
+     int pot_size = 0;
+     int total_pot_size = 0;
+     //Info below are updated per action during game
+     int current_street = 0; //0=preflop, 1=flop, 2=turn 3=river, 4=showdown, 5=finished
+     int num_player_in_hand = 0;
+     int stack_size[9] = {};
+     int next_player_to_act = 0;
+     int aggressor = 0;
+     int player_status[9] = {}; //0: no player 1: in game 2:folded
+     int bet_ring[9] = {}; //amount of money placed on the bet ring (in front of player, no in the pot), they gets collected to pot when the street ends
+     int allin_state[9] = {};
+     int raise_amount = 0; // raise size - previous raise size
+     //ActionHistory action_history;
+     
+     //Info below are updated at the end of the game
+     Card player_hole_cards[9][2];
+
+/*To be added*/ //To add range for each player.
+
+
+     //struct copy from GameState constructor
+     GameStateNoVector(GameState gamestate){
+        num_player = gamestate.num_player;
+        btn_pos = gamestate.btn_pos;
+        sb_pos = gamestate.sb_pos;
+        bb_pos = gamestate.bb_pos;
+        sb_amount = gamestate.sb_amount;
+        bb_amount = gamestate.bb_amount;
+        hand_number = gamestate.hand_number;
+        pot_size = gamestate.pot_size;
+        total_pot_size = gamestate.total_pot_size;
+        current_street = gamestate.current_street;
+        num_player_in_hand = gamestate.num_player_in_hand;
+        next_player_to_act = gamestate.next_player_to_act;
+        aggressor = gamestate.aggressor;
+        raise_amount = gamestate.raise_amount;
+        for (int i=0; i<2; i++){
+            player_hole_cards[i][0]=gamestate.player_hole_cards[i].at(0);
+            player_hole_cards[i][1]=gamestate.player_hole_cards[i].at(1);
+            starting_stack_size[i]=gamestate.starting_stack_size[i];
+            nb_of_buyins[i]=gamestate.nb_of_buyins[i];
+            stack_size[i]=gamestate.stack_size[i];
+            player_status[i]=gamestate.player_status[i];
+            bet_ring[i]=gamestate.bet_ring[i];
+            allin_state[i]=gamestate.allin_state[i];
+        }
+        community_size = gamestate.community_cards.size();
+        for (int i=0; i<community_size; i++){
+            community_cards[i]=gamestate.community_cards[i];
+        }
+     }
  };
