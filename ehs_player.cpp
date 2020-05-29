@@ -47,7 +47,8 @@ void SetCall(Action &act, LegalActions legal_act) {
 
 void SetRaise(Action &act, int amount, LegalActions legal_act) {
 	act.action = 2;
-	act.amount = amount;
+	int max = legal_act.LegalMaxRaise.amount;
+	act.amount = (amount > max ? max : amount);
 }
 
 void SetFold(Action &act) {

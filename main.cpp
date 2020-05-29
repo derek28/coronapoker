@@ -17,7 +17,7 @@ int main()
     Game game;
 	//Setup game here
 	// Define the 2 players, one AI, the other AI/player
-	int nhands=50000;	
+	int nhands=500;	
 	Player* player1 = new RandomPlayer();
 	Player* player2 = new EhsPlayer();
 	game.AddPlayer(0,10000, player1);
