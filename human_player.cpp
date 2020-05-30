@@ -110,13 +110,15 @@ Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 
 #ifdef GUI
 Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
-	GameStateNoVector gs(game_state);
 	LegalActionsSimplify la(legal_actions);
-    tcpserver.Send(gs);
 	tcpserver.Send(la);
     Action i = tcpserver.ReadAction();
 	std::cout << i << std::endl;
 	return i;
+}
 
+void HumanPlayer::Notify(GameState gamestate) {
+	GameStateNoVector gs(gamestate);
+	tcpserver.Send(gs);
 }
 #endif

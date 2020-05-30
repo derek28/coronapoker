@@ -47,7 +47,7 @@ private:
     void updateRange(int i, int j);
     void fillCard(QLabel* label, Card card);
     void sendAction(Action);
-    void updateGameState(QByteArray);
+    void updateGameState();
     void updateLegalActions(QByteArray);
     void updateCards();
     void removeCard(QLabel* label);
@@ -59,6 +59,10 @@ private:
     bool villain_card_on = false;
     GameStateNoVector* gs;
     LegalActionsSimplify* la;
+
+    QByteArray game_state_buf;
+    QByteArray legal_action_buf;
+
 };
 
 #endif // MAINWINDOW_H

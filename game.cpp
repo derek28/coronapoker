@@ -401,6 +401,9 @@ void Game::UpdateGameState(ActionWithID ac) {
         return;
     }
 
+    //Update GUI
+    players[0]->Notify(game_state_);
+
 }
 
 void Game::RemovePlayerCard() {
@@ -534,7 +537,8 @@ void Game::Start() {
 		ResetGameState();
 		PostBlinds();
         ShuffleAndDeal();
-        
+        //send info to first player
+        players[0]->Notify(game_state_);
 		while ( !IsCurrentHandFinished() ) { //it breaks when a hand finishes
 			//Ask player (pointed by nextplayertoact) to act
 			LegalActions legal_ac = GetAllLegalActions();
@@ -542,6 +546,12 @@ void Game::Start() {
 			ac = VerifyAction(ac, legal_ac);
 			UpdateGameState(ac);
 		}
+
+        //Update GUI when a game has finished
+        players[0]->Notify(game_state_);
+        std::cout<< "PRESS ENTER TO CONTINUE" << std::endl;
+        std::cin.ignore();
+
 		//game.PrintGameState();
 		MoveBtn();
 	}
