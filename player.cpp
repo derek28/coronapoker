@@ -35,6 +35,12 @@ Player::Player(int player_type, string name) {
 Player::~Player() {}
 
 
+
+void Player::Notify(GameState game_state){
+
+	return;
+}
+
 Action Player::Act(GameState game_state, LegalActions legal_actions){
     Action action_to_return;
 

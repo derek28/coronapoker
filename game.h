@@ -15,9 +15,10 @@
 #include <utility>
 #include <iostream>
 #include "misc.h"
+#include "server.h"
 
-#include <sys/ipc.h>
-#include <sys/shm.h> 
+//#include <sys/ipc.h>
+//#include <sys/shm.h> 
 
 #define NUM_OF_PLAYERS	2
 

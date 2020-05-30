@@ -45,29 +45,33 @@ void MainWindow::readFromSocket()
         }
         if (size > 0 && buffer.size() >= size-4) // If data has received completely, process the data
         {
-            QByteArray data = buffer.mid(0, size-4);
-            buffer.remove(0, size-4);
-            size = 0;
-            qDebug() << "payload first index:" << (int) data[0];
-            if ( static_cast<unsigned char>(data[0]) == static_cast<unsigned char>(1) ) { // if data is gamestate
-                data.remove(0,1);
-                updateGameState(data);
+
+            qDebug() << "payload first index:" << (int) buffer[0];
+            if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(1) ) { // if data is gamestate
+                buffer.remove(0,1);
+                game_state_buf=buffer.mid(0,size-5);
+                buffer.remove(0, size-5);
+                updateGameState();
             }
-            else if ( static_cast<unsigned char>(data[0]) == static_cast<unsigned char>(2) ){
-                data.remove(0,1);
-                updateLegalActions(data);
+            else if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(2) ){
+                buffer.remove(0,1);
+                legal_action_buf=buffer.mid(0,size-5);
+                buffer.remove(0, size-5);
+                updateLegalActions(legal_action_buf);
             }
             else {
-                qDebug() << "something wrong, payload first index is" << data[0];
+                qDebug() << "something wrong, payload first index is" << buffer[0];
             }
+
+            size = 0;
         }
     }
 }
 
-void MainWindow::updateGameState(QByteArray buf)
+void MainWindow::updateGameState()
 {
     qDebug() << "Update GameState" ;
-    gs = (GameStateNoVector*) buf.data();
+    gs = (GameStateNoVector*) game_state_buf.data();
     //gs->printdebug();
     //update button position
     if( gs->btn_pos == 0 ) {
@@ -92,7 +96,7 @@ void MainWindow::updateGameState(QByteArray buf)
 
 
     ui->PotSize->setText(QString::number(gs->pot_size));
-
+    ui->TotalPotSize->setText(QString::number(gs->total_pot_size));
     updateCards();
 }
 
@@ -105,10 +109,11 @@ void MainWindow::updateLegalActions(QByteArray buf)
     else{
         ui->RAISEBTN->setEnabled(true);
         updateRange(la->legal_action[2].amount, la->legal_action[3].amount);
+        ui->spinBox->setValue(la->legal_action[2].amount);
     }
 
     if(la->legal_action[1].amount == 0){
-        QString calltext("CHECK\n");
+        QString calltext("CHECK");
         ui->CALLBTN->setText(calltext);
     }
     else{
@@ -117,9 +122,12 @@ void MainWindow::updateLegalActions(QByteArray buf)
     ui->CALLBTN->setText(calltext);
     }
 
+    ui->YourTurnToAct->setVisible(true);
 }
 
 void MainWindow::updateCards(){
+    gs = (GameStateNoVector*) game_state_buf.data();
+
     removeCard(ui->HoleCard0Villain);
     removeCard(ui->HoleCard1Villain);
     removeCard(ui->HoleCard0Hero);
@@ -184,6 +192,8 @@ void MainWindow::sendAction(Action playerAction){
     memcpy(outbuf, &playerAction, sizeof(playerAction));
     int status = socket.write(outbuf,sizeof(playerAction));
     qDebug() << "action sent. Sent status (Byte count):" << status;
+
+    ui->YourTurnToAct->setVisible(false);
 }
 
 void MainWindow::myfunction()
@@ -197,7 +207,8 @@ void MainWindow::myfunction()
 void MainWindow::on_spinBox_valueChanged(int arg1)
 {
     ui->horizontalSlider->setValue(arg1);
-    QString raisetext("RAISE TO\n");
+
+    QString raisetext("RAISE/BET\n");
     raisetext.append(QString::number(arg1));
     ui->RAISEBTN->setText(raisetext);
 }
@@ -239,6 +250,8 @@ void MainWindow::on_VillainCardOn_clicked(bool checked)
         qDebug() << "do not show vil hand";
         villain_card_on = 0;
     }
+    updateCards();
+
 }
 
 void MainWindow::on_RAISEBTN_clicked()

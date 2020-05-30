@@ -69,6 +69,5 @@ switch(c.GetSuit()) {
        		default : std::cerr << "[ERROR] Suit out of bound! Suit is: " << c.GetSuit() << std::endl;
 }
 
-
-
+return outstream;
 }

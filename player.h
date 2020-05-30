@@ -29,6 +29,7 @@ public:
   	~Player();
 
 	virtual Action Act(GameState, LegalActions);
+	virtual void Notify(GameState);
 	
   	int Bet(int bet_amount);
   	int Call(int call_amount);
