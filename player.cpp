@@ -77,6 +77,7 @@ int Player::Bet(int bet_amount) {
 
 int Player::Call(int call_amount) {
 	this->Bet(call_amount);
+    return 0;
 }
 
 int Player::Fold() {

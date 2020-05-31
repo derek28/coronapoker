@@ -63,6 +63,7 @@ int Game::AddPlayer(int seat, int stack_size, Player* player) {
     players[seat]->SetID(seat);
 
     players[seat]->SetStatus(1); //#define STATUS_IN_GAME		1
+	return 0;
 }
 
 void Game::RemovePlayer(int seat) {
