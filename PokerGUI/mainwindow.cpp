@@ -8,6 +8,8 @@
 #include <QTime>
 #include "game_state.h"
 #include "mainwindow.h"
+//#include <QSound>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -19,6 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(myfunction()));
     timer->start(2000);
+
+    ui->RAISEBTN->setEnabled(false);
+    ui->CALLBTN->setEnabled(false);
+    ui->FOLDBTN->setEnabled(false);
 
     //test set range
     updateRange(0,10000);
@@ -57,7 +63,7 @@ void MainWindow::readFromSocket()
                 buffer.remove(0,1);
                 legal_action_buf=buffer.mid(0,size-5);
                 buffer.remove(0, size-5);
-                updateLegalActions(legal_action_buf);
+                updateLegalActions();
             }
             else {
                 qDebug() << "something wrong, payload first index is" << buffer[0];
@@ -100,10 +106,10 @@ void MainWindow::updateGameState()
     updateCards();
 }
 
-void MainWindow::updateLegalActions(QByteArray buf)
+void MainWindow::updateLegalActions()
 {
     qDebug() << "Update LegalActions" ;
-    la = (LegalActionsSimplify*) buf.data();
+    la = (LegalActionsSimplify*) legal_action_buf.data();
     if(la->legal_action[2].amount == -1 || la->legal_action[3].amount == -1)
         ui->RAISEBTN->setEnabled(false);
     else{
@@ -123,6 +129,10 @@ void MainWindow::updateLegalActions(QByteArray buf)
     }
 
     ui->YourTurnToAct->setVisible(true);
+
+    ui->RAISEBTN->setEnabled(true);
+    ui->CALLBTN->setEnabled(true);
+    ui->FOLDBTN->setEnabled(true);
 }
 
 void MainWindow::updateCards(){
@@ -194,6 +204,9 @@ void MainWindow::sendAction(Action playerAction){
     qDebug() << "action sent. Sent status (Byte count):" << status;
 
     ui->YourTurnToAct->setVisible(false);
+    ui->RAISEBTN->setEnabled(false);
+    ui->CALLBTN->setEnabled(false);
+    ui->FOLDBTN->setEnabled(false);
 }
 
 void MainWindow::myfunction()
