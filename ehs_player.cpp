@@ -14,12 +14,23 @@ using namespace std;
 
 float prob = 0.7;
 
-int RandomAction(float prob) {
+static int RandomAction(float prob) {
 	float r = (float) rand() / RAND_MAX;
-	cout << "Random(): " << r << endl;
+	cout << "[AI] Thresh prob: " << prob;
+	cout << "; Random(): " << r << endl;
 	if (r > prob) 
 		return 0;
 	return 1;
+}
+
+static float Power(float x, int p) {
+	float r = 1.0;
+	if (p < 0) return 0;
+	if (p == 0) return 1;
+	for (int i = 0; i < p; i++) {
+		r = r * x;
+	}
+	return r;
 }
 
 
@@ -85,7 +96,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 //	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
 	std::cout << std::endl;
 
-	float IHS, EHS;
+	float IHS, EHS, UHS;
 	int my_id = this->GetID();
 	int street = game_state.current_street;
 	int IsInPosition = (my_id == game_state.sb_pos ? 1 : 0);
@@ -115,7 +126,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		if (num_of_actions == 1) { 
 			if (GetOppAction(game_state, street) == 1) { // opp called
 				cout << "[AI] OK... you call..." << endl;
-				if (RandomAction(IHS * IHS)) {
+				if (RandomAction(Power(IHS, 2))) {
 				//if (IHS > 0.7) {
 					SetRaise(my_action, 2 * game_state.total_pot_size, legal_actions);
 				} else {
@@ -123,11 +134,12 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 				}	
 			} else {					// opp raised
 				cout << "[AI] You raised..." << endl;
-				if (IHS > 0.9 || IHS < 0.25) {
+				if (IHS > 0.9 || IHS < 0.2) {
 					if (RandomAction(IHS)) {
 						SetRaise(my_action, 2 * game_state.total_pot_size, legal_actions);
 					}
 				} else if (IHS > GetPotOdds(game_state, legal_actions)) {
+					cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
 					SetCall(my_action, legal_actions);
 				} else {
 					SetFold(my_action);
@@ -138,7 +150,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		if (num_of_actions >= 2) {
 			// opponent raised your limp or reraised you
 			cout << "[AI] You raised me!" << endl;
-			if (IHS > GetPotOdds(game_state, legal_actions)) {
+			if (Power(IHS, 2) > GetPotOdds(game_state, legal_actions)) {
 				SetCall(my_action, legal_actions);
 			} else {
 				SetFold(my_action);
@@ -149,12 +161,14 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	// flop = 1; turn = 2; river = 3
 	if (street > 0 && street <= 3) {
 		EHS = GetEffectiveStrength(my_cards, board, NULL);
+		UHS = Power(EHS, street);
 		cout << "[AI] My EHS = " << EHS << endl;
+		cout << "[AI] My UHS = " << UHS << endl;
 
 		if (num_of_actions == 0) {
 			// first to act on this street 
 			cout << "[AI] I will act first." << endl;
-			if (RandomAction(EHS)) {
+			if (RandomAction(UHS)) {
 		//	if (EHS > 0.7) {	// raise half pot
 				SetRaise(my_action, 0.5 * game_state.total_pot_size, legal_actions);
 			} else {
@@ -166,7 +180,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			// opponent acted once 
 			if (GetOppAction(game_state, street) == 1) {		// check 
 				cout << "[AI] OK... you checked..." << endl;
-				if (RandomAction(EHS)) {
+				if (RandomAction(UHS)) {
 				//if (EHS > 0.7) {
 					SetRaise(my_action, 0.5 * game_state.total_pot_size, legal_actions);
 				} else {
@@ -175,11 +189,11 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			} else {					// opp raises
 				cout << "[AI] You raised..." << endl;
 				cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
-				if (EHS > 0.85 || EHS < 0.2) {
-					if (RandomAction(EHS)) {
+				if (UHS > 0.7 || UHS < 0.2) {
+					if (RandomAction(UHS)) {
 						SetRaise(my_action, game_state.total_pot_size, legal_actions);
 					}
-				} else if (EHS > GetPotOdds(game_state, legal_actions)) {
+				} else if (UHS > GetPotOdds(game_state, legal_actions)) {
 					SetCall(my_action, legal_actions);
 				} else {
 					SetFold(my_action);	
@@ -191,13 +205,12 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			// opponent raised your check or reraised you
 			cout << "[AI] You raised me!" << endl;
 			cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
-			if (EHS > GetPotOdds(game_state, legal_actions)) {
+			if (UHS > GetPotOdds(game_state, legal_actions)) {
 				SetCall(my_action, legal_actions);
 			} else {
 				SetFold(my_action);
 			}
 		}
-
 	}
 
 	return my_action;
