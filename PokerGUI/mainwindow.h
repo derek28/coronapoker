@@ -48,7 +48,7 @@ private:
     void fillCard(QLabel* label, Card card);
     void sendAction(Action);
     void updateGameState();
-    void updateLegalActions(QByteArray);
+    void updateLegalActions();
     void updateCards();
     void removeCard(QLabel* label);
 
