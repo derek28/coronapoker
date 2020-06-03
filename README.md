@@ -4,7 +4,7 @@ Highly efficient Texas Hold'em simulation framework, with AI created during the 
 
 ## Player with AI:
 
-Step 1: Run ./humanvsbot.cpp <numberofhands> \
+Step 1: Run ./humanvsbot <numberofhands> \
 Step 2: Run ./PokerGUI and click "file"-> "connect" to connect to human player server, if your game has a human player.
 
 
@@ -13,7 +13,7 @@ Step 2: Run ./PokerGUI and click "file"-> "connect" to connect to human player s
 ## Create your own AI:
 Step 1: Create your own player class, derived from base class Player. See RandomPlayer for example. \
 Step 2: Setup your game, see humanvsbot.cpp for an example. \
-Step 3: Run ./humanvsbot.cpp <numberofhands>  \
+Step 3: Run ./humanvsbot <numberofhands>  \
 Step 4 (optional): Run ./PokerGUI and click "file"-> "connect" to connect to human player server, if your game has a human player.
 
 
