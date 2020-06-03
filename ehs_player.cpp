@@ -174,14 +174,14 @@ Action PolarizedAction(float hs, float th_strong, float th_weak, float p_slow, f
 			// bluff
 			SetRaise(my_action, r_bet * game_state.total_pot_size, legal_actions);
 			cout << "[AI] Raise as a bluff." << endl;
-		} else {
+			return my_action;
+		} /*else {
 			if (type == 1) {		// opponent raises
 				SetFold(my_action);
 			} else {				// opponennt checks
 				SetCheck(my_action);
 			}
-		}
-		return my_action;
+		}*/
 	} 
 	
 	if (type == 1) { // tpye 1, call/fold
@@ -245,7 +245,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 				my_action = PolarizedAction(UHS, 0.8, 0.3, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 0);
 			} else {					// opp raised
 				cout << "[AI] You raised..." << endl;
-				my_action = PolarizedAction(UHS, 0.9, 0.1, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.9, 0.1, UHS - 0.7, 0.2 - UHS, 2, game_state, legal_actions, 1);
 			}
 		}
 
@@ -275,18 +275,17 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			// opponent acted once 
 			if (GetOppAction(game_state, street) == 1) {		// opp checks 
 				cout << "[AI] OK... you checked..." << endl;
-				if (street <= 2) { // flop or turn, slow play strong hands > 10%, bluff < 30%
-					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.6, 0.3 - UHS, 0.5, game_state, legal_actions, 0);
+				if (street <= 2) { // flop or turn, slow play strong hands > 10%, bluff < 40%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.6, 0.4 - UHS, 0.5, game_state, legal_actions, 0);
 				} else {		// river, always bet with strongest hand, bluff < 30%
 					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.3 - UHS, 0.67, game_state, legal_actions, 0); 
 				}
 			} else {					// opp raises
-				pot_odds = GetPotOdds(game_state, legal_actions);
 				cout << "[AI] You raised..." << endl;
-				if (street <= 2) {	// flop or turn, slow play strong hands > 10%, bluff < 20%
-					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // flop, turn
+				if (street <= 2) {	// flop or turn, slow play strong hands > 10%, bluff < 25%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.25 - UHS, 1.5, game_state, legal_actions, 1); // flop, turn
 				} else {	// river, always raise with strongest hand, bluff < 20%
-					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // river
+					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.25 - UHS, 1.5, game_state, legal_actions, 1); // river
 				}
 			}
 		}
@@ -299,7 +298,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			} else {	// I got reraised
 				if (street <= 2) {	// flop or turn, slow play strong hands > 0%, bluff < 10% 
 					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.1 - UHS, 1.5, game_state, legal_actions, 1); // flop, turn
-				} else {
+				} else {		// river, always raise with strongest hand, bluff < 10%
 					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.1 - UHS, 1.5, game_state, legal_actions, 1);	// flop, turn
 				}	
 			}
