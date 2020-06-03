@@ -1,4 +1,9 @@
+/*
+ *	humanvsbot.cpp
+ */
+
 #include <iostream>
+#include <cstring>
 #include "card.h"
 #include "deck.h"
 #include "pokerhand.h"
@@ -11,15 +16,33 @@
 
 using namespace std;
 
-int main()
+int str2int(char *str) {
+	int len = strlen(str);
+	int r = 0;
+	for (int i = 0; i < len; i++) {
+		r = r * 10 + (str[i] - '0');
+	}
+	return r;
+}
+
+int main(int argc, char *argv[])
 {
+	int nhands;
 	cout << "Hello, Corona!" << endl;
+
+	if (argc != 2) {
+		cout << "Usage: ./humanvsbot [NUM of Hands]" << endl;
+		return -1;
+	}
+
+	nhands = str2int(argv[1]);	
+	cout << "Starting game... Total number of hands: " << nhands << endl;
+		
 	std::srand((unsigned) time(0));
 	// Instantiate Game
     Game game;
 	//Setup game here
 	// Define the 2 players.
-	int nhands=50;	
 	Player* player1 = new HumanPlayer();
 	Player* player2 = new EhsPlayer();
 	game.AddPlayer(0,10000, player1);

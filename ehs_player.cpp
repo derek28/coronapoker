@@ -6,13 +6,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <math.h>
 #include "misc.h"
 #include "strength.h"
 
+
 using namespace std;
-
-
-float prob = 0.7;
 
 static int RandomAction(float prob) {
 	float r = (float) rand() / RAND_MAX;
@@ -22,17 +21,6 @@ static int RandomAction(float prob) {
 		return 0;
 	return 1;
 }
-
-static float Power(float x, int p) {
-	float r = 1.0;
-	if (p < 0) return 0;
-	if (p == 0) return 1;
-	for (int i = 0; i < p; i++) {
-		r = r * x;
-	}
-	return r;
-}
-
 
 int GetNumOfActions(GameState game_state, int street) {
 	switch (street) {
@@ -49,18 +37,82 @@ int GetNumOfActions(GameState game_state, int street) {
 	}
 }
 int GetOppAction(GameState game_state, int street) {
+	int n = GetNumOfActions(game_state, street) - 1;
 	switch (street) {
-		case 0:
-				return game_state.action_history.preflop[0].player_action.action;
+		case 0:	
+				return game_state.action_history.preflop[n].player_action.action;
 		case 1:
-				return game_state.action_history.flop[0].player_action.action;
+				return game_state.action_history.flop[n].player_action.action;
 		case 2:
-				return game_state.action_history.turn[0].player_action.action;
+				return game_state.action_history.turn[n].player_action.action;
 		case 3:
-				return game_state.action_history.river[0].player_action.action;
+				return game_state.action_history.river[n].player_action.action;
 		default:
 				return -1;
 	}
+}
+
+int GetMyAction(GameState game_state, int street) {
+	int n = GetNumOfActions(game_state, street) - 2;
+	switch (street) {
+		case 0:	
+				return game_state.action_history.preflop[n].player_action.action;
+		case 1:
+				return game_state.action_history.flop[n].player_action.action;
+		case 2:
+				return game_state.action_history.turn[n].player_action.action;
+		case 3:
+				return game_state.action_history.river[n].player_action.action;
+		default:
+				return -1;
+	}
+}
+
+static int AnalyzeAction(struct Action action) {
+	if (action.action == 0) 
+		return 0;
+	if (action.action == 1 && action.amount == 0)
+		return 0;
+	if (action.action == 1 && action.amount > 0)
+		return 1;
+	return 2;
+}
+
+/*
+ * Opp raises : aggro += 1;
+ * Opp calls your raise: aggro += 0.5;
+ * Opp checks: aggro = aggro;
+ */
+float GetAggroFactor(GameState game_state, int id) {	
+	float aggro = 0.5;
+	struct ActionHistory ah = game_state.action_history;
+	int size = 0;
+	int i = 0;
+	size = ah.preflop.size();
+	for (i = 0; i < size; i++) {
+		if (ah.preflop[i].ID == id){
+			aggro += 0.33 * AnalyzeAction(ah.preflop[i].player_action);
+		}
+	}
+	size = ah.flop.size();
+	for (i = 0; i < size; i++) {
+		if (ah.flop[i].ID == id){
+			aggro += 0.25* AnalyzeAction(ah.flop[i].player_action);
+		}
+	}
+	size = ah.turn.size();
+	for (i = 0; i < size; i++) {
+		if (ah.turn[i].ID == id){
+			aggro += 0.33 * AnalyzeAction(ah.turn[i].player_action);
+		}
+	}
+	size = ah.river.size();
+	for (i = 0; i < size; i++) {
+		if (ah.river[i].ID == id){
+			aggro += 0.5 * AnalyzeAction(ah.river[i].player_action);
+		}
+	}
+	return aggro;
 }
 
 void SetCall(Action &act, LegalActions legal_act) {
@@ -87,6 +139,66 @@ float GetPotOdds(GameState game_state, LegalActions legal_actions) {
 	return (float)legal_actions.LegalCall.amount / (float)game_state.total_pot_size;	
 }
 
+/* 
+ * Type-A Polarized Action Strategy, call/reraise/fold
+ * Categorize a hand to Strong, Medium and Weak
+ * Adopt a randomized mixed strategy 
+ */ 
+Action PolarizedAction(float hs, float th_strong, float th_weak, float p_slow, float p_bluff,
+				float r_bet, GameState game_state, LegalActions legal_actions, int type) {
+	Action my_action;
+	float pot_odds = GetPotOdds(game_state, legal_actions);
+	float th_odds = pot_odds / (1.0 + pot_odds);			// required win rate to justify a call
+
+	// Decide whether to bet for value	
+	if (hs > th_strong) { 
+		if (RandomAction(p_slow)) {
+			// slow play, check/call
+			if (type == 1) {
+				SetCall(my_action, legal_actions);	
+			} else {
+				SetCheck(my_action);
+			}
+			cout << "[AI] Slow play for balance." << endl;
+		} else {
+			// bet for value
+			SetRaise(my_action, r_bet * game_state.total_pot_size, legal_actions);
+			cout << "[AI] Bet for value." << endl;
+		}
+		return my_action;
+	}
+
+	// Decide whether to bluff or not.
+	if (hs < th_weak) {
+		if (RandomAction(p_bluff)) {
+			// bluff
+			SetRaise(my_action, r_bet * game_state.total_pot_size, legal_actions);
+			cout << "[AI] Raise as a bluff." << endl;
+		} else {
+			if (type == 1) {		// opponent raises
+				SetFold(my_action);
+			} else {				// opponennt checks
+				SetCheck(my_action);
+			}
+		}
+		return my_action;
+	} 
+	
+	if (type == 1) { // tpye 1, call/fold
+	// medium strength hand
+		cout << "[AI] I am given a pot odds of " << pot_odds << endl;
+		cout << "[AI] I need " << th_odds * 100 << "\% win rate to call." << endl;
+		if (hs > th_odds) {
+			SetCall(my_action, legal_actions);
+		} else {
+			SetFold(my_action);
+		}
+	} else {	// type == 0, can check
+		SetCheck(my_action);
+	}
+	return my_action;
+}
+
 Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	Action my_action;
 	
@@ -97,7 +209,9 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	std::cout << std::endl;
 
 	float IHS, EHS, UHS;
+	float pot_odds;
 	int my_id = this->GetID();
+	int opp_id = ~my_id;
 	int street = game_state.current_street;
 	int IsInPosition = (my_id == game_state.sb_pos ? 1 : 0);
 	int num_of_actions = GetNumOfActions(game_state, street);
@@ -105,98 +219,74 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	vector <Card> board = game_state.community_cards;
 	vector <Card> my_cards = this->GetHoleCards();
 
+	float th_strong = 0.7;
+	float th_weak = 0.3;
+	float aggro = 0.0;
+
 	// preflop strategy
 	if (street == 0) {
 		IHS = GetImmediateStrength(my_cards, board, NULL);
 		cout << "[AI] My IHS = " << IHS << endl;
+		aggro = GetAggroFactor(game_state, 0);
+		cout << "[AI] OPP Aggression Factor = " << aggro << endl;
+		UHS = pow(IHS, aggro);
+		cout << "[AI] My UHS = " << UHS << endl;
 
 		if (num_of_actions == 0) {
 			// first to act
 			cout << "[AI] I am first to act..." << endl;
-			if (RandomAction(IHS)) {	// IHS% chance raise
-			//if (IHS > 0.6) {
-				SetRaise(my_action, 2 * game_state.total_pot_size, legal_actions);
-			} else {
-				SetCall(my_action, legal_actions);
-			}
+			my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.6, 0.5 - UHS, 2, game_state, legal_actions, 1);
 		}
-
 
 		// opponent acted once
 		if (num_of_actions == 1) { 
 			if (GetOppAction(game_state, street) == 1) { // opp called
 				cout << "[AI] OK... you call..." << endl;
-				if (RandomAction(Power(IHS, 2))) {
-				//if (IHS > 0.7) {
-					SetRaise(my_action, 2 * game_state.total_pot_size, legal_actions);
-				} else {
-					SetCheck(my_action);
-				}	
+				my_action = PolarizedAction(UHS, 0.8, 0.3, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 0);
 			} else {					// opp raised
 				cout << "[AI] You raised..." << endl;
-				if (IHS > 0.9 || IHS < 0.2) {
-					if (RandomAction(IHS)) {
-						SetRaise(my_action, 2 * game_state.total_pot_size, legal_actions);
-					}
-				} else if (IHS > GetPotOdds(game_state, legal_actions)) {
-					cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
-					SetCall(my_action, legal_actions);
-				} else {
-					SetFold(my_action);
-				}
+				my_action = PolarizedAction(UHS, 0.9, 0.1, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 1);
 			}
 		}
 
 		if (num_of_actions >= 2) {
 			// opponent raised your limp or reraised you
 			cout << "[AI] You raised me!" << endl;
-			if (Power(IHS, 2) > GetPotOdds(game_state, legal_actions)) {
-				SetCall(my_action, legal_actions);
-			} else {
-				SetFold(my_action);
-			}
+			my_action = PolarizedAction(UHS, 0.9, 0.1, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 1);
 		}
 	}	
 
 	// flop = 1; turn = 2; river = 3
 	if (street > 0 && street <= 3) {
 		EHS = GetEffectiveStrength(my_cards, board, NULL);
-		UHS = Power(EHS, street);
+		aggro = GetAggroFactor(game_state, 0);
+		UHS = pow(EHS, aggro);
 		cout << "[AI] My EHS = " << EHS << endl;
+		cout << "[AI] OPP Aggression Factor = " << aggro << endl;
 		cout << "[AI] My UHS = " << UHS << endl;
 
 		if (num_of_actions == 0) {
 			// first to act on this street 
 			cout << "[AI] I will act first." << endl;
-			if (RandomAction(UHS)) {
-		//	if (EHS > 0.7) {	// raise half pot
-				SetRaise(my_action, 0.5 * game_state.total_pot_size, legal_actions);
-			} else {
-				SetCheck(my_action);
-			}
+			my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.3 - UHS, 0.5, game_state, legal_actions, 0);
 		} 
 
 		if (num_of_actions == 1) {
 			// opponent acted once 
-			if (GetOppAction(game_state, street) == 1) {		// check 
+			if (GetOppAction(game_state, street) == 1) {		// opp checks 
 				cout << "[AI] OK... you checked..." << endl;
-				if (RandomAction(UHS)) {
-				//if (EHS > 0.7) {
-					SetRaise(my_action, 0.5 * game_state.total_pot_size, legal_actions);
-				} else {
-					SetCheck(my_action);
+				if (street <= 2) { // flop or turn, slow play strong hands > 10%, bluff < 30%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.6, 0.3 - UHS, 0.5, game_state, legal_actions, 0);
+				} else {		// river, always bet with strongest hand, bluff < 30%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.3 - UHS, 0.67, game_state, legal_actions, 0); 
 				}
 			} else {					// opp raises
+				pot_odds = GetPotOdds(game_state, legal_actions);
 				cout << "[AI] You raised..." << endl;
-				cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
-				if (UHS > 0.7 || UHS < 0.2) {
-					if (RandomAction(UHS)) {
-						SetRaise(my_action, game_state.total_pot_size, legal_actions);
-					}
-				} else if (UHS > GetPotOdds(game_state, legal_actions)) {
-					SetCall(my_action, legal_actions);
-				} else {
-					SetFold(my_action);	
+				if (street <= 2) {	// flop or turn, slow play strong hands > 10%, bluff < 20%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // flop, turn
+				} else {	// river, always raise with strongest hand, bluff < 20%
+					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // river
 				}
 			}
 		}
@@ -204,14 +294,16 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		if (num_of_actions >= 2) {
 			// opponent raised your check or reraised you
 			cout << "[AI] You raised me!" << endl;
-			cout << "[AI] I am given a pot odds of " << GetPotOdds(game_state, legal_actions) << endl;
-			if (UHS > GetPotOdds(game_state, legal_actions)) {
-				SetCall(my_action, legal_actions);
-			} else {
-				SetFold(my_action);
+			if (GetMyAction(game_state, street) == 1) {	// I checked. Check raise 100% with strongest hands, bluff < 20%
+				my_action = PolarizedAction(UHS, 0.7, 0.3, 0, 0.2 - UHS, 1.5, game_state, legal_actions, 1);
+			} else {	// I got reraised
+				if (street <= 2) {	// flop or turn, slow play strong hands > 0%, bluff < 10% 
+					my_action = PolarizedAction(UHS, 0.7, 0.3, UHS - 0.7, 0.1 - UHS, 1.5, game_state, legal_actions, 1); // flop, turn
+				} else {
+					my_action = PolarizedAction(UHS, 0.7, 0.3, 1 - UHS, 0.1 - UHS, 1.5, game_state, legal_actions, 1);	// flop, turn
+				}	
 			}
 		}
 	}
-
 	return my_action;
 }
