@@ -453,6 +453,13 @@ ActionWithID Game::VerifyAction(ActionWithID ac, LegalActions legal_actions) {
             }
 
     } else if ( ac.player_action.action == 2) {
+        if (legal_actions.LegalMinRaise.amount == -1) { //if raise is not allowed, default it to call
+            std::cerr << "[WARNING] raise is not possible here, you can only call:"  \
+                      << legal_actions.LegalCall.amount << std::endl; 
+            ac.player_action.action = 1;
+            ac.player_action.amount = legal_actions.LegalCall.amount;
+            return ac;
+        }
         if ( ac.player_action.amount < legal_actions.LegalMinRaise.amount ) {
             std::cerr << "[WARNING] raise amount is invalid: " << ac.player_action.amount  \
                       << " ,should be at least: " <<  legal_actions.LegalMinRaise.amount \
@@ -489,7 +496,7 @@ LegalActions Game::GetAllLegalActions() {
     legal_actions.LegalMinRaise.amount = biggest_bet_amount + game_state_.raise_amount;
 
     legal_actions.LegalMaxRaise.action = 2;
-    legal_actions.LegalMaxRaise.amount = game_state_.stack_size[game_state_.next_player_to_act] ;
+    legal_actions.LegalMaxRaise.amount = game_state_.bet_ring[game_state_.next_player_to_act]  + game_state_.stack_size[game_state_.next_player_to_act] ;
 
     if ( biggest_bet_amount >= game_state_.stack_size[game_state_.next_player_to_act] 
                                 + game_state_.bet_ring[game_state_.next_player_to_act] ) {
