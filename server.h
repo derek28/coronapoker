@@ -11,6 +11,9 @@ public:
     void Initialize();
     void Send(GameStateNoVector);
     void Send(LegalActionsSimplify);
+    void Send(ActionWithID);
+    void Send(ActionHistory);
+    void Send(GameResult);
     Action ReadAction();
     void WaitForConnection();
 

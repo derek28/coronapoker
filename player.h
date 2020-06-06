@@ -30,6 +30,7 @@ public:
 
 	virtual Action Act(GameState, LegalActions);
 	virtual void Notify(GameState);
+	virtual void Notify(GameResult);
 	
   	int Bet(int bet_amount);
   	int Call(int call_amount);

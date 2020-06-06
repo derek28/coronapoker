@@ -45,7 +45,12 @@ struct ActionWithID {
         return os;
     }
 };
- 
+
+struct GameResult {
+    int winner[9] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+    int agressor = 0;
+};
+
 struct LegalActions {
     Action LegalCall;
     Action LegalFold;
@@ -74,12 +79,18 @@ struct ActionHistory {
     {
         os << "************PREFLOP**********" << std::endl;
         os << ac_his.preflop;
-        os << "************FLOP*************" << std::endl;
-        os << ac_his.flop;
-        os << "************TURN*************" << std::endl;
-        os << ac_his.turn;
-        os << "************RIVER************" << std::endl;
-        os << ac_his.river;
+        if (ac_his.flop.size() != 0) {
+            os << "************FLOP*************" << std::endl;
+            os << ac_his.flop;
+        }
+        if (ac_his.turn.size() != 0) {
+            os << "************TURN*************" << std::endl;
+            os << ac_his.turn;
+        }
+        if (ac_his.river.size() != 0) {
+            os << "************RIVER************" << std::endl;
+            os << ac_his.river;
+        }
         return os;
     }
 
