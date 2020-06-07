@@ -36,6 +36,11 @@ int GetNumOfActions(GameState game_state, int street) {
 				return -1;
 	}
 }
+
+float **AssignOppRange(GameState game_state) {
+	return NULL;
+}
+
 int GetOppAction(GameState game_state, int street) {
 	int n = GetNumOfActions(game_state, street) - 1;
 	switch (street) {
@@ -337,5 +342,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			}
 		}
 	}
+
+	DeleteRangeTable(opp_range);
 	return my_action;
 }
