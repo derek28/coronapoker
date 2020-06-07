@@ -14,7 +14,7 @@
 using namespace std;
 
 static int RandomAction(float prob) {
-	float r = (float) rand() / RAND_MAX;
+	float r = (float)rand() / RAND_MAX;
 	cout << "[AI] Thresh prob: " << prob;
 	cout << "; Random(): " << r << endl;
 	if (r > prob) 
@@ -96,9 +96,12 @@ float GetAggroFactor(GameState game_state, int id) {
 		}
 	}
 	size = ah.flop.size();
+	if (size > 0 && aggro < 1) {
+		aggro = 1;			// set aggro factor > 1 after preflop
+	}
 	for (i = 0; i < size; i++) {
 		if (ah.flop[i].ID == id){
-			aggro += 0.25* AnalyzeAction(ah.flop[i].player_action);
+			aggro += 0.25 * AnalyzeAction(ah.flop[i].player_action);
 		}
 	}
 	size = ah.turn.size();
@@ -225,56 +228,61 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	vector <Card> board = game_state.community_cards;
 	vector <Card> my_cards = this->GetHoleCards();
 
-	float aggro = 0.0;
+	float opp_agg = 0.0;
+	float my_agg = 0.0;
+	float **opp_range;
 
 	// preflop strategy
 	if (street == 0) {
-		IHS = GetImmediateStrength(my_cards, board, NULL);
+		IHS = GetPreflopStrength(my_cards);
 		cout << "[AI] My IHS = " << IHS << endl;
-		aggro = GetAggroFactor(game_state, 0);
-		cout << "[AI] OPP Aggression Factor = " << aggro << endl;
-		UHS = pow(IHS, aggro);
+		opp_agg = GetAggroFactor(game_state, 0);
+		cout << "[AI] OPP Aggression Factor = " << opp_agg << endl;
+		UHS = pow(IHS, opp_agg);
 		cout << "[AI] My UHS = " << UHS << endl;
 
 		if (num_of_actions == 0) {
 			// first to act
 			cout << "[AI] I am first to act..." << endl;
-			my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.7, 0.5 - UHS, 2, game_state, legal_actions, 1);
+			my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.5, UHS, 1.66667, game_state, legal_actions, 1);
 		}
 
 		// opponent acted once
 		if (num_of_actions == 1) { 
 			if (GetOppAction(game_state, street) == 1) { // opp called
 				cout << "[AI] OK... you call..." << endl;
-				my_action = PolarizedAction(UHS, 0.8, 0.3, UHS - 0.7, 0.3 - UHS, 2, game_state, legal_actions, 0);
+				my_action = PolarizedAction(UHS, 0.7, 0.6, UHS - 0.6, UHS, 1.5, game_state, legal_actions, 0);
 			} else {					// opp raised
 				cout << "[AI] You raised..." << endl;
-				my_action = PolarizedAction(UHS, 0.9, 0.1, UHS - 0.7, 0.2 - UHS, 2, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.85, 0.8, UHS - 0.7, UHS - 0.5, 2, game_state, legal_actions, 1);
 			}
 		}
 
 		if (num_of_actions >= 2) {
 			// opponent raised your limp or reraised you
 			cout << "[AI] You raised me!" << endl;
-			if (GetMyAction(game_state, street) == 1) {	// I checked. Check raise 100% with strongest hands, bluff < 20%
-				my_action = PolarizedAction(UHS, 0.7, 0.3, 0, 0.2 - UHS, 2, game_state, legal_actions, 1);
+			if (GetMyAction(game_state, street) == 1) {	// I checked. Check raise with strongest hands, bluff < 20%
+				my_action = PolarizedAction(UHS, 0.85, 0.8, UHS - 0.7, UHS - 0.5, 2, game_state, legal_actions, 1);
 			} else {	// I am reraised. Reraise with the strongest hand, slowplay <20%, bluff < 30%
-				my_action = PolarizedAction(UHS, 0.95, 0.1, UHS - 0.7, 0.3 - UHS, 1.5, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.95, 0.9, UHS - 0.7, UHS - 0.7, 2, game_state, legal_actions, 1);
 			}
 		}
 	}	
 
 	// flop = 1; turn = 2; river = 3
 	if (street > 0 && street <= 3) {
-		IHS = GetImmediateStrength(my_cards, board, NULL);
-		EHS = GetEffectiveStrength(my_cards, board, NULL);
+		opp_range = GetRangeTable(0.25, 1.0);	// estimate opponent range
+		IHS = GetImmediateStrength(my_cards, board, opp_range);
+		EHS = GetEffectiveStrength(my_cards, board, opp_range);
 		PHS = EHS - IHS;
-		aggro = GetAggroFactor(game_state, 0);
-		UHS = pow(EHS, aggro);
+		opp_agg = GetAggroFactor(game_state, 0);
+		my_agg = GetAggroFactor(game_state, my_id);
+		UHS = pow(EHS, opp_agg);
 		cout << "[AI] My IHS = " << IHS;
 		cout << ", EHS = " << EHS;
 		cout << ", PHS = " << PHS << endl;
-		cout << "[AI] OPP Aggression Factor = " << aggro << endl;
+		cout << "[AI] OPP Aggression Factor = " << opp_agg << endl;
+		cout << "[AI] My Aggression Factor = " << my_agg << endl;
 		cout << "[AI] My UHS = " << UHS << endl;
 
 		if (num_of_actions == 0) {
@@ -304,9 +312,9 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			} else {					// opp raises
 				cout << "[AI] You raised..." << endl;
 				if (street == 1) {	// flop 
-					my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.5 + 3 * PHS, 3 * PHS, 1.5, game_state, legal_actions, 1);
+					my_action = PolarizedAction(UHS, 0.7, 0.5, UHS - 0.5 + 3 * PHS, 2 * PHS, 1.5, game_state, legal_actions, 1);
 				} else if (street <= 2) {	// turn, slow play strong hands > 10%, bluff = PHS
-					my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.5 + 2 * PHS, 3 * PHS, 1.5, game_state, legal_actions, 1); 
+					my_action = PolarizedAction(UHS, 0.65, 0.4, UHS - 0.5 + 2 * PHS, 2 * PHS, 1.5, game_state, legal_actions, 1); 
 				} else {	// river, always raise with strongest hand, bluff < 20%
 					my_action = PolarizedAction(UHS, 0.6, 0.3, 0, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // river
 				}

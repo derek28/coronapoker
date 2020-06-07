@@ -16,11 +16,28 @@ void testHandStrength();
 
 void testHumanPlayer();
 
+void testRange();
+
 int main(){
     std::srand(std::time(0));
-//	testHandStrength();
-	testPokerhandComparison();
+	testHandStrength();	
+	//testPokerhandComparison();
+    //testRange();
     return 0;
+}
+
+void testRange() {
+	float **RangeTable;
+	cout << "75% Range" << endl;
+	RangeTable = GetRangeTable(0.25, 1.0);
+	// Need to free RangeTable here.
+	cout << "50% Range" << endl;
+	RangeTable = GetRangeTable(0.5, 1.0);
+	cout << "25% Range" << endl;
+	RangeTable = GetRangeTable(0.75, 1.0);
+	cout << "Top 10% - 50%" << endl;
+	RangeTable = GetRangeTable(0.5, 0.9);
+
 }
 
 void testHumanPlayer() {
@@ -45,15 +62,15 @@ void testHandStrength() {
 	vector <Card> opp_hand;
 	vector <Card> board;
 
-	opp_hand.push_back(Card(9, CLUB));
-	opp_hand.push_back(Card(9, DIAMOND));
+	opp_hand.push_back(Card(2, CLUB));
+	opp_hand.push_back(Card(7, DIAMOND));
 
-	my_hand.push_back(Card(2, CLUB));
-	my_hand.push_back(Card(2, HEART));
+	my_hand.push_back(Card(9, CLUB));
+	my_hand.push_back(Card(9, HEART));
 
 	board.push_back(Card(7, SPADE));
 	board.push_back(Card(8, HEART));
-	board.push_back(Card(2, SPADE));
+	board.push_back(Card(6, SPADE));
 	//board.push_back(Card(13, HEART));
 	//board.push_back(Card(1, DIAMOND));
 
@@ -63,13 +80,20 @@ void testHandStrength() {
 		cout << board[i] << " ";
 	}
 	cout << endl;
+
+	float **opp_range = GetRangeTable(0.95, 1.0);	// Top 5% range
 	float IHS = GetImmediateStrength(my_hand, board, NULL);
-	cout << "Immediate hand strength = " << IHS << endl;
+	cout << "Immediate hand strength with 100% range = " << IHS << endl;
+	IHS = GetImmediateStrength(my_hand, board, opp_range);
+	cout << "Immediate hand strength with 5% range = " << IHS << endl;
 	float EHS = GetEffectiveStrength(my_hand, board, NULL);
-	cout << "Effective hand strength = " << EHS << endl;
+	cout << "Effective hand strength with 100% = " << EHS << endl;
+	EHS = GetEffectiveStrength(my_hand, board, opp_range);
+	cout << "Effective hand strength with 5% = " << EHS << endl;
 //	float equity = GetHandEquity(hd, op, com, num_of_cards);
 //	cout << "Hand equity against " << op[0] << " " << op[1] << " is " 
 //			<< equity << endl;
+	DeleteRangeTable(opp_range);
 }
 
 void testPokerhandComparison() {

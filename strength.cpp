@@ -83,10 +83,10 @@ float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **rang
 			if (j % 13 == 0) {
 				cout << " ";
 			}
-			cout << combos[i][j] << " ";
+			cout << (combos[i][j] == 1) << " ";
 		}
 		cout << endl;
-	}	*///////////////////////////
+	} */
 
 	// Create 2 pokerhand for comparison
 	PokerHand poker1;
@@ -257,4 +257,121 @@ float GetEffectiveStrength(vector <Card> hand, vector <Card> board, float **rang
 
 	cerr << "Too few community cards! Can't get effective handstrength." << endl;
 	return -1;
+}
+
+float GetPreflopStrength(vector <Card> hand) {
+	float strength = 0.0;
+	int ra = 0, rb = 0;	// rank a, rank b
+	
+	if (hand.size() != 2) {
+		cerr << "Invalid <Card> size" << endl;
+		return 0.0;
+	}
+
+	ra = (14 - hand[0].GetRank()) % 13;
+	rb = (14 - hand[1].GetRank()) % 13;		// A -> 0, K -> 1, Q -> 2 ...
+	
+	if (hand[0].GetSuit() == hand[1].GetSuit()) {		// suited
+		strength = (ra < rb ? preflop_strength[ra][rb] : preflop_strength[rb][ra]);
+	} else {		// offsuit
+		strength = (ra < rb ? preflop_strength[rb][ra] : preflop_strength[ra][rb]);
+	}
+
+	return strength / 200.0;
+}
+
+
+// return 52 x 52 range table, from p_low% to p_high%
+float **GetRangeTable(float p_low, float p_high) {
+	float **combo = NULL;
+	combo = new float*[52];
+	for (int i = 0; i < 52; i++) {
+		combo[i] = new float[52];
+	}
+
+	float range[13][13];
+	int th_low = p_low * 200;
+	int th_hi = p_high * 200;
+
+	for (int i = 0; i < 13; i++) {
+		for (int j = 0; j < 13; j++) {
+			if (preflop_strength[i][j] > th_hi) {
+				range[i][j] = 0;
+			} else if (preflop_strength[i][j] < th_low) {
+				range[i][j] = 0; 
+			} else {
+				range[i][j] = 1;
+			}
+		}
+	}
+
+	// print range table
+	for (int i = 0; i < 13; i++) {
+		for (int j = 0; j < 13; j++) {
+			cout << (range[i][j] == 1) << " ";
+		}
+		cout << endl;
+	}
+
+	// Suited, 4 combos each
+	for (int i = 0; i < 13; i++) {
+		for (int j = i + 1; j < 13; j++) {
+			if (i == 0) {	// Ace
+				combo[0][13 - j] = range[i][j];
+				combo[13][26 - j] = range[i][j];
+				combo[26][39 - j] = range[i][j];
+				combo[39][52 - j] = range[i][j];
+			} else {	// 2 - K
+				combo[13 - j][13 - i] = range[i][j];
+				combo[26 - j][26 - i] = range[i][j];
+				combo[39 - j][39 - i] = range[i][j];
+				combo[52 - j][52 - i] = range[i][j];
+			}
+		}
+	}
+
+	// Offsuit, 12 combos each
+	for (int i = 1; i < 13; i++) {
+		for (int j = 0; j < i - 1; j++) {
+			int k = (j == 0 ? 13 : j);		// A
+			combo[13 - i][26 - k] = range[i][j];
+			combo[13 - i][39 - k] = range[i][j];
+			combo[13 - i][52 - k] = range[i][j];
+
+			combo[26 - i][39 - k] = range[i][j];
+			combo[26 - i][52 - k] = range[i][j];
+			combo[13 - k][26 - i] = range[i][j];
+
+			combo[39 - i][52 - k] = range[i][j];
+			combo[13 - k][39 - i] = range[i][j];
+			combo[26 - k][39 - i] = range[i][j];
+
+			combo[13 - k][52 - i] = range[i][j];
+			combo[26 - k][52 - i] = range[i][j];
+			combo[39 - k][52 - i] = range[i][j];
+		}
+	}
+
+	// pocket pair, 6 combos each
+	for (int i = 0; i < 13; i++) {
+		int k = (i == 0 ? 13 : i);
+		combo[13 - k][26 - k] = range[i][i];
+		combo[13 - k][39 - k] = range[i][i];
+		combo[13 - k][52 - k] = range[i][i];
+		combo[26 - k][39 - k] = range[i][i];
+		combo[26 - k][52 - k] = range[i][i];
+		combo[39 - k][52 - k] = range[i][i];
+	}
+
+	return combo;
+}
+
+
+// free the allocated memory
+void DeleteRangeTable(float **range) {
+	for (int i = 0; i < 52; i++) {
+		delete[] range[i];
+	}
+	delete[] range;
+	cout << "Range table memory freed." << endl;
 }
