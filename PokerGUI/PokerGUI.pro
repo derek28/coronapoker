@@ -27,14 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         card.cpp \
-        game.pb.cc
+#        game.pb.cc
 
 HEADERS += \
         mainwindow.h \
         card.h \
         game_state.h \
         misc.h \
-        game.pb.h
+#        game.pb.h
 
 FORMS += \
         mainwindow.ui
@@ -42,4 +42,4 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-unix:!macx: LIBS += -lprotobuf
+## unix:!macx: LIBS += -lprotobuf

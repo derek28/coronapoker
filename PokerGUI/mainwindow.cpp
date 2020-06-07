@@ -9,7 +9,7 @@
 #include "game_state.h"
 #include "mainwindow.h"
 //#include <QSound>
-#include "game.pb.h"
+//#include "game.pb.h"
 #include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) :
