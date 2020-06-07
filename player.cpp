@@ -41,6 +41,11 @@ void Player::Notify(GameState game_state){
 	return;
 }
 
+void Player::Notify(GameResult game_result){
+
+	return;
+}
+
 Action Player::Act(GameState game_state, LegalActions legal_actions){
     Action action_to_return;
 

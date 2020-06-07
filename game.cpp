@@ -557,10 +557,24 @@ void Game::Start() {
 
         //Update GUI when a game has finished
         players[0]->Notify(game_state_);
-        std::cout<< "PRESS ENTER TO CONTINUE" << std::endl;
-        std::cin.ignore();
+        GameResult gr;
+        vector<int> winners = GetWinner();
 
-		//game.PrintGameState();
+        std::copy (winners.begin(),winners.end(),gr.winner);
+
+        #ifdef DEBUG
+            std::cout << "[DEBUG] winner size: " << winners.size() << std::endl;
+            std::cout << "[DEBUG] winner vector: " << winners<< std::endl;
+            std::cout << "[DEBUG] outgoing winner payload winner 0: "<< gr.winner[0]<< std::endl;
+            std::cout << "[DEBUG] outgoing winner payload winner 1: "<< gr.winner[1]<< std::endl;
+            std::cout << "[DEBUG] outgoing winner payload winner 2: "<< gr.winner[2]<< std::endl;
+            std::cout << "[DEBUG] outgoing winner payload winner 3: "<< gr.winner[3]<< std::endl;
+            std::cout << "[DEBUG] outgoing winner payload winner 4: "<< gr.winner[4]<< std::endl;
+        #endif
+        gr.agressor = game_state_.aggressor;
+        std::cout<< "[INFO] game finishes, waiting for player to confirm" << std::endl;
+        players[0]->Notify(gr); //player needs to confirm
+
 		MoveBtn();
 	}
 

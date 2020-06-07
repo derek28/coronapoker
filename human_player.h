@@ -12,6 +12,8 @@ class HumanPlayer : public Player
 public:	
 	Action Act(GameState, LegalActions);
 	void Notify(GameState);
+	void Notify(GameResult);
+	void Notify(ActionWithID);
 #ifdef GUI
 	StreamServer tcpserver;
 #endif //endif gui

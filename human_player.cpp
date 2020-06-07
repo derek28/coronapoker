@@ -120,5 +120,16 @@ Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {
 void HumanPlayer::Notify(GameState gamestate) {
 	GameStateNoVector gs(gamestate);
 	tcpserver.Send(gs);
+	tcpserver.Send(gamestate.action_history);
 }
+
+void HumanPlayer::Notify(ActionWithID acwithid) {
+	tcpserver.Send(acwithid);
+}
+
+void HumanPlayer::Notify(GameResult gr) {
+	tcpserver.Send(gr);
+	tcpserver.ReadAction();
+}
+
 #endif

@@ -43,12 +43,17 @@ private slots:
 
     void on_FOLDBTN_clicked();
 
+    void on_pushButtonNextGame_clicked();
+
 private:
     void updateRange(int i, int j);
     void fillCard(QLabel* label, Card card);
     void sendAction(Action);
     void updateGameState();
     void updateLegalActions();
+    void updateActionWithID();
+    void updateActionHistory();
+    void updateGameResult();
     void updateCards();
     void removeCard(QLabel* label);
 
@@ -62,6 +67,9 @@ private:
 
     QByteArray game_state_buf;
     QByteArray legal_action_buf;
+    QByteArray actionwithid_buf;
+    QByteArray actionhis_buf;
+    QByteArray gameresult_buf;
 
 };
 

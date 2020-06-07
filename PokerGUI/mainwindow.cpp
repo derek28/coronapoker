@@ -9,6 +9,8 @@
 #include "game_state.h"
 #include "mainwindow.h"
 //#include <QSound>
+#include "game.pb.h"
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -55,15 +57,33 @@ void MainWindow::readFromSocket()
             qDebug() << "payload first index:" << (int) buffer[0];
             if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(1) ) { // if data is gamestate
                 buffer.remove(0,1);
-                game_state_buf=buffer.mid(0,size-5);
+                game_state_buf = buffer.mid(0,size-5);
                 buffer.remove(0, size-5);
                 updateGameState();
             }
             else if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(2) ){
                 buffer.remove(0,1);
-                legal_action_buf=buffer.mid(0,size-5);
+                legal_action_buf = buffer.mid(0,size-5);
                 buffer.remove(0, size-5);
                 updateLegalActions();
+            }
+            else if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(3) ){
+                buffer.remove(0,1);
+                actionwithid_buf = buffer.mid(0,size-5);
+                buffer.remove(0, size-5);
+                updateActionWithID();
+            }
+            else if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(4) ){
+                buffer.remove(0,1);
+                actionhis_buf = buffer.mid(0,size-5);
+                buffer.remove(0, size-5);
+                updateActionHistory();
+            }
+            else if ( static_cast<unsigned char>(buffer[0]) == static_cast<unsigned char>(5) ){
+                buffer.remove(0,1);
+                gameresult_buf = buffer.mid(0,size-5);
+                buffer.remove(0, size-5);
+                updateGameResult();
             }
             else {
                 qDebug() << "something wrong, payload first index is" << buffer[0];
@@ -88,6 +108,19 @@ void MainWindow::updateGameState()
         ui->ButtonHero->setVisible(false);
         ui->ButtonVillain->setVisible(true);
     }
+    //update hand number
+    ui->Handnumber2->setText(QString::number(gs->hand_number));
+
+    //update xxx thinking
+    if (gs->next_player_to_act == 0) {
+        ui->YourTurnToAct->setVisible(true);
+        ui->VillainTurn->setVisible(false);
+    }
+
+    if (gs->next_player_to_act == 1) {
+       ui->YourTurnToAct->setVisible(false);
+       ui->VillainTurn->setVisible(true);
+    }
 
     //Update the money values
     ui->BetAmountHero->setText(QString::number(gs->bet_ring[0]));
@@ -104,6 +137,47 @@ void MainWindow::updateGameState()
     ui->PotSize->setText(QString::number(gs->pot_size));
     ui->TotalPotSize->setText(QString::number(gs->total_pot_size));
     updateCards();
+}
+
+void MainWindow::updateGameResult() {
+    qDebug() << "Update GameResult" ;
+
+    GameResult* gr = (GameResult*) gameresult_buf.data();
+
+    //remove "bot/hero thinking" due to bug
+    ui->VillainTurn->setVisible(false);
+    ui->YourTurnToAct->setVisible(false);
+
+    //show winner notification
+    if (gr->winner[0]==0 || gr->winner[1]==0) {
+        ui->HeroWin->setVisible(true);
+    }
+    if (gr->winner[0]==1 || gr->winner[1]==1) {
+        ui->VillainWin->setVisible(true);
+    }
+
+    //decide if villain shows his hand
+    if ( (gr->agressor==1 || gr->winner[0] == 1 || gr->winner[1] == 1) && gs->num_player_in_hand>=2) {
+        fillCard(ui->HoleCard0Villain,gs->player_hole_cards[1][0]);
+        fillCard(ui->HoleCard1Villain,gs->player_hole_cards[1][1]);
+    }
+    //let the next game button be shown
+    ui->pushButtonNextGame->setVisible(true);
+
+}
+
+void MainWindow::updateActionWithID()
+{
+    qDebug() << "Update ActionWithID" ;
+    qDebug() << "To be completed" ;
+    return;
+}
+
+void MainWindow::updateActionHistory()
+{
+    ui->textBrowser->setText(actionhis_buf);
+    ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
+    return;
 }
 
 void MainWindow::updateLegalActions()
@@ -129,10 +203,14 @@ void MainWindow::updateLegalActions()
     }
 
     ui->YourTurnToAct->setVisible(true);
+    ui->VillainTurn->setVisible(false);
 
     ui->RAISEBTN->setEnabled(true);
     ui->CALLBTN->setEnabled(true);
     ui->FOLDBTN->setEnabled(true);
+    ui->pushButtonNextGame->setVisible(false);
+    ui->HeroWin->setVisible(false);
+    ui->VillainWin->setVisible(false);
 }
 
 void MainWindow::updateCards(){
@@ -204,6 +282,7 @@ void MainWindow::sendAction(Action playerAction){
     qDebug() << "action sent. Sent status (Byte count):" << status;
 
     ui->YourTurnToAct->setVisible(false);
+    ui->VillainTurn->setVisible(true);
     ui->RAISEBTN->setEnabled(false);
     ui->CALLBTN->setEnabled(false);
     ui->FOLDBTN->setEnabled(false);
@@ -289,4 +368,11 @@ void MainWindow::on_FOLDBTN_clicked()
     playerAction.action = 0;
     playerAction.amount = 0;
     sendAction(playerAction);
+}
+
+void MainWindow::on_pushButtonNextGame_clicked()
+{
+    ui->pushButtonNextGame->setVisible(false);
+    Action playerAction;
+    sendAction(playerAction); //send a meaningless signal for host to continue
 }

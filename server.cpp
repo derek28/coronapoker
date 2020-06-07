@@ -5,7 +5,7 @@
 #include <string.h> 
 #include "game_state.h"
 #include "server.h"
-
+#include <sstream>
 
 StreamServer::StreamServer(){
     Initialize();
@@ -98,7 +98,7 @@ void StreamServer::Send(GameStateNoVector gs){
 
 void StreamServer::Send(LegalActionsSimplify la){
     char buffer[2048] = {0};
-    int size = sizeof(la) + 4 + 1;
+    int size = 4 + 1 + sizeof(la);
     int type = 2;
     memcpy(buffer,&size,sizeof(int));
     memcpy(buffer+4,&type,1);   
@@ -108,3 +108,46 @@ void StreamServer::Send(LegalActionsSimplify la){
 }
 
 
+/* type =3 */
+void StreamServer::Send(ActionWithID acwithid) {
+    char buffer[2048] = {0};
+    int size = 4 + 1 + 3 * sizeof(int);
+    int type = 3;
+    memcpy(buffer, &size , sizeof(int));
+    memcpy(buffer + 4, &type , 1 );     
+    memcpy(buffer + 4 + 1, &acwithid.ID, sizeof(int));
+    memcpy(buffer + 4 + 1 + 1 * sizeof(int) , &acwithid.player_action.action, sizeof(int));
+    memcpy(buffer + 4 + 1 + 2 * sizeof(int) , &acwithid.player_action.amount, sizeof(int));
+    int i = send(new_socket , buffer , size, 0 ); 
+    std::cout << "[SERVER]LegalAction sent. Sent status:" << i << std::endl; 
+}
+
+
+/* type =4 */
+void StreamServer::Send(ActionHistory achis) {
+    std::stringstream ssbuffer;
+    ssbuffer << achis;
+    const std::string temp = ssbuffer.str();
+    const char* cstr = temp.c_str();
+
+    int size = 4 + 1 + strlen(cstr);
+    int type = 4;
+    memcpy(buffer, &size , sizeof(int));
+    memcpy(buffer + 4, &type , 1 ); 
+
+    memcpy(buffer + 4 + 1,  cstr, strlen(cstr) );
+
+    int i = send(new_socket , buffer , size, 0 ); 
+}
+
+/* type =5 */
+void StreamServer::Send(GameResult gr) {
+    int size = 4 + 1 + sizeof(gr);
+    int type = 5;
+    memcpy(buffer, &size , sizeof(int));
+    memcpy(buffer + 4, &type , 1 ); 
+    memcpy(buffer + 4 + 1,  &gr, sizeof(gr) );
+
+    int i = send(new_socket , buffer , size, 0 ); 
+    std::cout << "[SERVER]GameResult sent. Sent status:" << i << std::endl; 
+}

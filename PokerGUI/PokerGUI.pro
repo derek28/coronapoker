@@ -26,16 +26,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    card.cpp
+        card.cpp \
+        game.pb.cc
 
 HEADERS += \
         mainwindow.h \
-    card.h \
-    game_state.h \
-    misc.h
+        card.h \
+        game_state.h \
+        misc.h \
+        game.pb.h
 
 FORMS += \
         mainwindow.ui
 
 RESOURCES += \
     resources.qrc
+
+unix:!macx: LIBS += -lprotobuf
