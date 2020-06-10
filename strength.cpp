@@ -83,7 +83,7 @@ float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **rang
 			if (j % 13 == 0) {
 				cout << " ";
 			}
-			cout << (combos[i][j] == 1) << " ";
+			cout << combos[i][j] << " ";
 		}
 		cout << endl;
 	} */
@@ -109,6 +109,8 @@ float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **rang
 			PokerHand opp_hand = poker2;
 			if (combos[i][j] < 0.0 || combos[i][j] > 1.0) {
 				cerr << "Invalid combo weight!" << endl;
+				cerr << " i = " << i << "; j = " << j << endl;
+				cerr << "combos[i][j] = " << combos[i][j] << endl;
 				continue;
 			}
 			if (combos[i][j] != 0) {
@@ -311,6 +313,13 @@ float **GetRangeTable(float p_low, float p_high) {
 			cout << (range[i][j] == 1) << " ";
 		}
 		cout << endl;
+	}
+
+	// Initialize range table to 0
+	for (int i = 0; i < 52; i++) {
+		for (int j = 0; j < 52; j++) {
+			combo[i][j] = 0.0;
+		}
 	}
 
 	// Suited, 4 combos each

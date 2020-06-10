@@ -37,8 +37,56 @@ int GetNumOfActions(GameState game_state, int street) {
 	}
 }
 
-float **AssignOppRange(GameState game_state) {
-	return NULL;
+float **AssignOppRange(GameState game_state, int IsInPosition) {
+	int n = GetNumOfActions(game_state, 0);
+	float **range = NULL;
+	string ac_tree;
+	int ac;
+
+	// build action tree
+	for (int i = 0; i < n; i++) {
+		ac = game_state.action_history.preflop[i].player_action.action;
+		ac_tree.push_back(ac == 1 ? '1' : '2');
+	}
+	cout << ac_tree << endl;
+
+	if (IsInPosition) {	// I moved first
+		if (ac_tree.compare("11") == 0) 		// limp - check
+			return GetRangeTable(0.0, 1.0);
+		if (ac_tree.compare("21") == 0) 		// raise - call	 ... call 2-bet range
+			return GetRangeTable(0.2, 0.93);
+		if (ac_tree.compare("121") == 0)				// limp - raise - call	... 
+			return GetRangeTable(0.6, 1.0);
+		if (ac_tree.compare("221") == 0)		// raise - 3bet - call	... 3-bet range
+			return GetRangeTable(0.7, 1.0);
+		if (ac_tree.compare("2221") == 0)		// raise - 3bet - 4bet - call	... call 4-bet range
+			return GetRangeTable(0.8, 0.99);
+		if (ac_tree.compare("22221") == 0)		// raise - 3bet - 4bet - 5bet - call	.. 5-bet range
+			return GetRangeTable(0.97, 1.0);
+		if (ac_tree.compare("1221") == 0)			// limp - raise - 3bet - call		... call 3-bet range
+			return GetRangeTable(0.3, 0.99);
+		if (ac_tree.compare("12221") == 0)			// limp - raise - 3bet - 4bet - call	... 4-bet range
+			return GetRangeTable(0.95, 1.0);
+		return GetRangeTable(0.97, 1.0);
+	} else {		// Opp moved first
+		if (ac_tree.compare("11") == 0) 		// limp - check
+			return GetRangeTable(0.0, 1.0);
+		if (ac_tree.compare("21") == 0) 		// raise - call	... open 2-bet range
+			return GetRangeTable(0.2, 1.0);
+		if (ac_tree.compare("221") == 0)		// raise - 3bet - call	... call 3-bet range
+			return GetRangeTable(0.3, 0.99);
+		if (ac_tree.compare("2221") == 0)		// raise - 3bet - 4bet - call	... 4 bet range
+			return GetRangeTable(0.95, 1.0);
+		if (ac_tree.compare("22221") == 0)		// raise - 3bet - 4bet - 5bet - call ... call 5 bet range
+			return GetRangeTable(0.95, 0.995);
+		if (ac_tree.compare("121") == 0)				// limp - raise - call
+			return GetRangeTable(0.0, 0.75);
+		if (ac_tree.compare("1221") == 0)			// limp - raise - 3bet - call
+			return GetRangeTable(0.79, 1.0);
+		if (ac_tree.compare("12221") == 0)			// limp - raise - 3bet - 4bet - call
+			return GetRangeTable(0.85, 0.99);
+		return GetRangeTable(0.97, 1.0);
+	}
 }
 
 int GetOppAction(GameState game_state, int street) {
@@ -85,8 +133,8 @@ static int AnalyzeAction(struct Action action) {
 }
 
 /*
- * Opp raises : aggro += 1;
- * Opp calls your raise: aggro += 0.5;
+ * Opp raises : aggro += x;
+ * Opp calls your raise: aggro += x/2;
  * Opp checks: aggro = aggro;
  */
 float GetAggroFactor(GameState game_state, int id) {	
@@ -100,19 +148,20 @@ float GetAggroFactor(GameState game_state, int id) {
 			aggro += 0.33 * AnalyzeAction(ah.preflop[i].player_action);
 		}
 	}
+
 	size = ah.flop.size();
-	if (size > 0 && aggro < 1) {
-		aggro = 1;			// set aggro factor > 1 after preflop
+	if (size > 0) {
+		aggro = 1;			// reset aggressive factor to 1, starting flop
 	}
 	for (i = 0; i < size; i++) {
 		if (ah.flop[i].ID == id){
-			aggro += 0.25 * AnalyzeAction(ah.flop[i].player_action);
+			aggro += 0.33 * AnalyzeAction(ah.flop[i].player_action);
 		}
 	}
 	size = ah.turn.size();
 	for (i = 0; i < size; i++) {
 		if (ah.turn[i].ID == id){
-			aggro += 0.33 * AnalyzeAction(ah.turn[i].player_action);
+			aggro += 0.5 * AnalyzeAction(ah.turn[i].player_action);
 		}
 	}
 	size = ah.river.size();
@@ -249,7 +298,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 		if (num_of_actions == 0) {
 			// first to act
 			cout << "[AI] I am first to act..." << endl;
-			my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.5, UHS, 1.66667, game_state, legal_actions, 1);
+			my_action = PolarizedAction(UHS, 0.6, 0.6, UHS - 0.6, UHS, 1.66667, game_state, legal_actions, 1);
 		}
 
 		// opponent acted once
@@ -259,7 +308,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 				my_action = PolarizedAction(UHS, 0.7, 0.6, UHS - 0.6, UHS, 1.5, game_state, legal_actions, 0);
 			} else {					// opp raised
 				cout << "[AI] You raised..." << endl;
-				my_action = PolarizedAction(UHS, 0.85, 0.8, UHS - 0.7, UHS - 0.5, 2, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.81, 0.81, UHS - 0.7, UHS - 0.5, 2.2, game_state, legal_actions, 1);
 			}
 		}
 
@@ -267,16 +316,16 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			// opponent raised your limp or reraised you
 			cout << "[AI] You raised me!" << endl;
 			if (GetMyAction(game_state, street) == 1) {	// I checked. Check raise with strongest hands, bluff < 20%
-				my_action = PolarizedAction(UHS, 0.85, 0.8, UHS - 0.7, UHS - 0.5, 2, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.85, 0.8, UHS - 0.7, UHS - 0.5, 1.75, game_state, legal_actions, 1);
 			} else {	// I am reraised. Reraise with the strongest hand, slowplay <20%, bluff < 30%
-				my_action = PolarizedAction(UHS, 0.95, 0.9, UHS - 0.7, UHS - 0.7, 2, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.95, 0.9, UHS - 0.7, UHS - 0.7, 1.75, game_state, legal_actions, 1);
 			}
 		}
 	}	
 
 	// flop = 1; turn = 2; river = 3
 	if (street > 0 && street <= 3) {
-		opp_range = GetRangeTable(0.25, 1.0);	// estimate opponent range
+		opp_range = AssignOppRange(game_state, IsInPosition);	// estimate opponent range
 		IHS = GetImmediateStrength(my_cards, board, opp_range);
 		EHS = GetEffectiveStrength(my_cards, board, opp_range);
 		PHS = EHS - IHS;
@@ -295,11 +344,11 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			cout << "[AI] I will act first." << endl;	
 			// the lower the hand potential, the higher frequency of betting; the higher the potential, the more chance of bluffing
 			if (street == 1) { // flop
-				my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.4 + 3 * PHS, 0.3 + 3 * PHS, 0.5, game_state, legal_actions, 0);
+				my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.4 + 3 * PHS, UHS - 0.1 + 2 * PHS, 0.5, game_state, legal_actions, 0);
 			} else if (street == 2) {	// turn
-				my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 2 * PHS, 0.2 + 2 * PHS, 0.5, game_state, legal_actions, 0);
+				my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 2 * PHS, UHS - 0.1 + 2 * PHS, 0.5, game_state, legal_actions, 0);
 			} else {	// river
-				my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.4, 0.3 - UHS, 0.6666667, game_state, legal_actions, 0);
+				my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.7, 0.3 - UHS, 0.6666667, game_state, legal_actions, 0);
 			}
 		} 
 
@@ -308,18 +357,18 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			if (GetOppAction(game_state, street) == 1) {		// opp checks 
 				cout << "[AI] OK... you checked..." << endl;
 				if (street == 1) {	// flop, 
-					my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.4 + 3 * PHS, 0.3 + 3 * PHS, 0.5, game_state, legal_actions, 0);
+					my_action = PolarizedAction(UHS, 0.6, 0.5, UHS - 0.4 + 3 * PHS, UHS + 2 * PHS, 0.5, game_state, legal_actions, 0);
 				} else if (street == 2) { // turn, slow play strong hands > 10%, bluff = 2 * PHS
-					my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 2 * PHS, 0.2 + 3 * PHS, 0.5, game_state, legal_actions, 0);
+					my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 2 * PHS, UHS - 0.1 + 2 * PHS, 0.5, game_state, legal_actions, 0);
 				} else {		// river, always bet with strongest hand, bluff < 30%
-					my_action = PolarizedAction(UHS, 0.6, 0.3, 0, 0.3 - UHS, 0.66667, game_state, legal_actions, 0); 
+					my_action = PolarizedAction(UHS, 0.6, 0.3, 0, 0.3 - UHS, 0.6666667, game_state, legal_actions, 0); 
 				}
 			} else {					// opp raises
 				cout << "[AI] You raised..." << endl;
 				if (street == 1) {	// flop 
-					my_action = PolarizedAction(UHS, 0.7, 0.5, UHS - 0.5 + 3 * PHS, 2 * PHS, 1.5, game_state, legal_actions, 1);
+					my_action = PolarizedAction(UHS, 0.7, 0.5, UHS - 0.5 + 3 * PHS, UHS - 0.3 + PHS, 1.5, game_state, legal_actions, 1);
 				} else if (street <= 2) {	// turn, slow play strong hands > 10%, bluff = PHS
-					my_action = PolarizedAction(UHS, 0.65, 0.4, UHS - 0.5 + 2 * PHS, 2 * PHS, 1.5, game_state, legal_actions, 1); 
+					my_action = PolarizedAction(UHS, 0.65, 0.4, UHS - 0.5 + 2 * PHS, UHS - 0.2 + PHS, 1.5, game_state, legal_actions, 1); 
 				} else {	// river, always raise with strongest hand, bluff < 20%
 					my_action = PolarizedAction(UHS, 0.6, 0.3, 0, 0.2 - UHS, 1.5, game_state, legal_actions, 1); // river
 				}
@@ -330,19 +379,19 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 			// opponent raised your check or reraised you
 			cout << "[AI] You raised me!" << endl;
 			if (GetMyAction(game_state, street) == 1) {	// I checked. Check raise some% with strongest hands, bluff = 3 * PHS
-				my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.4 + 3 * PHS, 3 * PHS, 1.5, game_state, legal_actions, 1);
+				my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.4 + 3 * PHS, UHS - 0.3 + PHS, 1.5, game_state, legal_actions, 1);
 			} else {	// I got reraised
 				if (street == 1) {	// flop 
-					my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.4 + 3 * PHS, 2 * PHS, 1.5, game_state, legal_actions, 1);
+					my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 3 * PHS, UHS - 0.4 + PHS, 1.5, game_state, legal_actions, 1);
 				} else if (street == 2) {	// flop or turn, slow play strong hands > 0%, bluff = PHS 
-					my_action = PolarizedAction(UHS, 0.6, 0.3, UHS - 0.4 + 3 * PHS, PHS, 1.5, game_state, legal_actions, 1); // flop, turn
+					my_action = PolarizedAction(UHS, 0.6, 0.4, UHS - 0.4 + 3 * PHS, UHS - 0.35 + PHS, 1.5, game_state, legal_actions, 1); // flop, turn
 				} else {		// river, always raise with strongest hand, bluff = 5%
 					my_action = PolarizedAction(UHS, 0.6, 0.3, 0, 0, 1.5, game_state, legal_actions, 1);	// flop, turn
 				}	
 			}
 		}
+		DeleteRangeTable(opp_range);
 	}
 
-	DeleteRangeTable(opp_range);
 	return my_action;
 }

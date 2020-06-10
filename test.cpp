@@ -81,15 +81,15 @@ void testHandStrength() {
 	}
 	cout << endl;
 
-	float **opp_range = GetRangeTable(0.95, 1.0);	// Top 5% range
+	float **opp_range = GetRangeTable(0.25, 1.0);	// Top 5% range
 	float IHS = GetImmediateStrength(my_hand, board, NULL);
 	cout << "Immediate hand strength with 100% range = " << IHS << endl;
 	IHS = GetImmediateStrength(my_hand, board, opp_range);
 	cout << "Immediate hand strength with 5% range = " << IHS << endl;
-	float EHS = GetEffectiveStrength(my_hand, board, NULL);
-	cout << "Effective hand strength with 100% = " << EHS << endl;
-	EHS = GetEffectiveStrength(my_hand, board, opp_range);
-	cout << "Effective hand strength with 5% = " << EHS << endl;
+//	float EHS = GetEffectiveStrength(my_hand, board, NULL);
+//	cout << "Effective hand strength with 100% = " << EHS << endl;
+//	EHS = GetEffectiveStrength(my_hand, board, opp_range);
+//	cout << "Effective hand strength with 5% = " << EHS << endl;
 //	float equity = GetHandEquity(hd, op, com, num_of_cards);
 //	cout << "Hand equity against " << op[0] << " " << op[1] << " is " 
 //			<< equity << endl;
