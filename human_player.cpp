@@ -28,19 +28,6 @@ int str2uint(string str, unsigned &r) {
 	}
 	return 0;
 }
-vector <string> split(string str, char delim) {
-	vector <string> splitStrings;
-	size_t curr, prev = 0;
-	curr = str.find(delim);
-	while (curr != string::npos) {
-		splitStrings.push_back(str.substr(prev, curr - prev));
-		prev = curr + 1;
-		curr = str.find(delim, prev);
-	}
-	splitStrings.push_back(str.substr(prev, curr - prev));
-	return splitStrings;
-}
-
 
 #ifndef GUI
 Action HumanPlayer::Act(GameState game_state, LegalActions legal_actions) {

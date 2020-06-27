@@ -4,12 +4,12 @@
 
 #include "ehs_player.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <math.h>
 #include "misc.h"
 #include "strength.h"
-
 
 using namespace std;
 
@@ -262,6 +262,106 @@ Action PolarizedAction(float hs, float th_strong, float th_weak, float p_slow, f
 	return my_action;
 }
 
+EhsPlayer::EhsPlayer() {
+	int i, j;
+	ifstream fin;
+	string buff;
+	vector <string> splitStrings;
+
+	cout << "Reading weights files..." << endl;
+	// Read neural network weight files
+	fin = open_file("nn_weights/weight1.txt");
+	for (j = 0; j < IN_WIDTH + 1; j++) {
+		getline(fin, buff);
+		splitStrings = split(buff, ' ');
+		for (i = 0; i < L1_WIDTH; i++) {
+			M[j][i] = stof(splitStrings[i]);
+		}
+	}
+	fin.close();
+	
+	fin = open_file("nn_weights/weight2.txt");
+	for (j = 0; j < L1_WIDTH + 1; j++) {
+		getline(fin, buff);
+		splitStrings = split(buff, ' ');
+		for (i = 0; i < L2_WIDTH; i++) {
+			N[j][i] = stof(splitStrings[i]);
+		}
+	}
+	fin.close();
+
+	fin = open_file("nn_weights/weight3.txt");
+	for (i = 0; i < L2_WIDTH + 1; i++) {
+		getline(fin, buff);
+		O[i] = stof(buff);
+	}
+	fin.close();
+	
+	for (i = 0; i < L2_WIDTH + 1; i++) {
+		cout << O[i] << " ";
+	}
+	cout << endl;
+	for (i = 0; i < L2_WIDTH; i++) {
+		cout << N[L1_WIDTH][i] << " ";
+	}
+	cout << endl; 
+}
+
+// Use neural network weight matrix to predict effective hand strength
+float EhsPlayer::PredictEHS(vector <Card> hand, vector <Card> board, float **range) {
+	double nn_in[IN_WIDTH + 1] = {0.0};
+	double nn_m[L1_WIDTH + 1] = {0.0};
+	double nn_n[L2_WIDTH + 1] = {0.0};
+	double nn_o = 0.0;
+
+	// convert hand to neural network input format	
+	nn_in[conv(hand[0])] = 1;
+	nn_in[conv(hand[1])] = 1;
+	nn_in[conv(board[0]) + 52] = 1;
+	nn_in[conv(board[1]) + 52] = 1;
+	nn_in[conv(board[2]) + 52] = 1;
+
+	nn_in[IN_WIDTH] = 1.0;		// input bias term
+
+	int i, j, k;
+
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 13; j++) {
+			cout << nn_in[i * 13 + j] << " ";
+		}
+		cout << endl;
+	}
+
+	cout << "L1 results:" << endl;
+	for (i = 0; i < L1_WIDTH; i++) {
+		for (j = 0; j < IN_WIDTH + 1; j++) {
+			nn_m[i] += nn_in[j] * M[j][i];
+		}
+		nn_m[i] = relu(nn_m[i]);	// activation function
+		cout << nn_m[i] << " ";
+	}
+	nn_m[L1_WIDTH] = 1.0;	// bias term always = 1
+	cout << nn_m[L1_WIDTH] << endl;
+
+	cout << "L2 results:" << endl;
+	for (i = 0; i < L2_WIDTH; i++) {
+		for (j = 0; j < L1_WIDTH + 1; j++) {
+			nn_n[i] += nn_m[j] * N[j][i];
+		}
+		nn_n[i] = relu(nn_n[i]);
+		cout << nn_n[i] << " ";
+	}
+	nn_n[L2_WIDTH] = 1.0; // bias term always = 1
+	cout << nn_n[L2_WIDTH] << endl;
+
+	// model output
+	for (i = 0; i < L2_WIDTH + 1; i++) {
+		nn_o += nn_n[i] * O[i];	
+	}
+
+	return nn_o;
+}
+
 Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	Action my_action;
 	
@@ -271,7 +371,7 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 //	std::cout << "Max raise:" << legal_actions.LegalMaxRaise.amount;
 	std::cout << std::endl;
 
-	float IHS, EHS, PHS, UHS;
+	float IHS, EHS, PHS, UHS, NN_EHS;
 	float pot_odds;
 	int my_id = this->GetID();
 	int opp_id = ~my_id;
@@ -327,13 +427,15 @@ Action EhsPlayer::Act(GameState game_state, LegalActions legal_actions) {
 	if (street > 0 && street <= 3) {
 		opp_range = AssignOppRange(game_state, IsInPosition);	// estimate opponent range
 		IHS = GetImmediateStrength(my_cards, board, opp_range);
-		EHS = GetEffectiveStrength(my_cards, board, opp_range);
+		EHS = GetEffectiveStrength(my_cards, board, NULL);
+		NN_EHS = PredictEHS(my_cards, board, NULL);
 		PHS = EHS - IHS;
 		opp_agg = GetAggroFactor(game_state, 0);
 		my_agg = GetAggroFactor(game_state, my_id);
 		UHS = pow(EHS, opp_agg);
 		cout << "[AI] My IHS = " << IHS;
 		cout << ", EHS = " << EHS;
+		cout << ", NN_EHS = " << NN_EHS;
 		cout << ", PHS = " << PHS << endl;
 		cout << "[AI] OPP Aggression Factor = " << opp_agg << endl;
 		cout << "[AI] My Aggression Factor = " << my_agg << endl;

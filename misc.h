@@ -1,6 +1,11 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include "card.h"
+
+using namespace std;
 
 enum StreetName {
     preflop = 0,
@@ -9,6 +14,14 @@ enum StreetName {
     river   = 3,
     showdown= 4
 };
+
+vector <string> split(string str, char delim);
+
+ifstream open_file(string filename);
+
+int conv(Card c);
+
+double relu(double x);
 
 inline std::ostream& operator<<(std::ostream& os, const StreetName& street_name)
 {

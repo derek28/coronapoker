@@ -1,29 +1,51 @@
-#include<iostream>
-#include<string>
-#include"pokerhand.h"
-#include<ctime>
-#include<cstdlib>
-#include"card.h"
-#include"deck.h"
-#include"strength.h"
-#include"human_player.h"
+#include <iostream>
+#include <string>
+#include "pokerhand.h"
+#include <ctime>
+#include <cstdlib>
+#include "card.h"
+#include "deck.h"
+#include "strength.h"
+#include "human_player.h"
+#include "ehs_player.h"
 
 using namespace std;
 
 void testPokerhandComparison();
-
 void testHandStrength(); 
-
 void testHumanPlayer();
-
 void testRange();
+void testNN();
 
 int main(){
     std::srand(std::time(0));
-	testHandStrength();	
+	//testHandStrength();	
 	//testPokerhandComparison();
     //testRange();
+	testNN();
     return 0;
+}
+
+void testNN() {
+	EhsPlayer player = EhsPlayer();
+	vector <Card> my_hand;
+	vector <Card> board;
+	float ehs, p_ehs;
+
+	my_hand.push_back(Card(9, CLUB));
+	my_hand.push_back(Card(9, HEART));
+
+	board.push_back(Card(7, SPADE));
+	board.push_back(Card(8, HEART));
+	board.push_back(Card(6, SPADE));
+
+	cout << "Hole cards: " << my_hand[0] << " " << my_hand[1] << endl;
+	cout << "Board: " << board[0] << " " << board[1] << " " << board[2] << endl;
+
+	p_ehs = player.PredictEHS(my_hand, board, NULL);
+	ehs =  GetEffectiveStrength(my_hand, board, NULL);
+	cout << "Predictd EHS = " << p_ehs << endl;
+	cout << "Real EHS = " << ehs << endl;
 }
 
 void testRange() {

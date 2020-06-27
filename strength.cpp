@@ -384,3 +384,4 @@ void DeleteRangeTable(float **range) {
 	delete[] range;
 	cout << "Range table memory freed." << endl;
 }
+

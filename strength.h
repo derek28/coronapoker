@@ -12,6 +12,8 @@ float GetImmediateStrength(vector <Card> hand, vector <Card> board, float **rang
 
 float GetEffectiveStrength(vector <Card> hand, vector <Card> board, float **range);
 
+float PredictEHS(vector <Card> hand, vector <Card> board, float **range);
+
 float GetHandEquity(vector <Card> a, vector <Card> b, vector <Card> board);
 
 const int preflop_strength[13][13] = {

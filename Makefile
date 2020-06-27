@@ -3,7 +3,7 @@ CFLAGS = -O1 -std=c++11
 CC = g++
 DEPS = card.h deck.h pokerhand.h player.h game.h strength.h human_player.h random_player.h ehs_player.h
 OBJ     = main.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o random_player.o ehs_player.o server.o
-OBJTEST = test.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o server.o
+OBJTEST = test.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o ehs_player.o server.o
 OBJHUMANVSBOT = humanvsbot.o pokerhand.o card.o deck.o player.o game.o strength.o misc.o human_player.o random_player.o ehs_player.o server.o
 OBJBENCHMARK = benchmark.o pokerhand.o card.o deck.o player.o game.o misc.o random_player.o
 
