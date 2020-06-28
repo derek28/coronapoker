@@ -75,6 +75,17 @@ struct ActionHistory {
     std::vector<ActionWithID> turn;
     std::vector<ActionWithID> river;
 
+    std::vector<ActionWithID>& operator[] (size_t i)
+    {
+        switch (i) {
+        case 0: return preflop;
+        case 1: return flop;
+        case 2: return turn;
+        case 3: return river;
+        default: std::cerr << "Action History index out of bound: " << i << std::endl;
+        }
+    }
+
     friend std::ostream& operator<<(std::ostream& os, ActionHistory ac_his)
     {
         os << "************PREFLOP**********" << std::endl;

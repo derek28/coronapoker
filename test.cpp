@@ -16,14 +16,33 @@ void testHandStrength();
 void testHumanPlayer();
 void testRange();
 void testNN();
+void testActionHistoryOverload();
 
 int main(){
     std::srand(std::time(0));
 	//testHandStrength();	
 	//testPokerhandComparison();
     //testRange();
-	testNN();
+	testActionHistoryOverload(); 
+	//testNN();
     return 0;
+}
+
+
+void testActionHistoryOverload(){
+	ActionHistory achis;
+	std::cout << achis[1].size() << std::endl;
+
+	ActionWithID ac_to_add;
+	ac_to_add.ID = 1;
+	ac_to_add.player_action.action = 2;
+	ac_to_add.player_action.amount = 2332;
+	
+	achis[1].push_back(ac_to_add);
+	std::cout << achis[1].size() << std::endl;
+	std::cout << achis[1] << std::endl;
+	
+
 }
 
 void testNN() {
